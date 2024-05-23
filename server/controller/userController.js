@@ -7,7 +7,6 @@ const userSignUp = async (req, res) => {
 
         const user = await userModel.findOne({ email });
 
-        console.log("user", user);
 
         if (user) {
             throw new Error("User already exists.");

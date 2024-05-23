@@ -24,10 +24,12 @@ const userSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now,
+      timezone: "Asia/Kolkata",
     },
     updatedAt: {
       type: Date,
       default: Date.now,
+      timezone: "Asia/Kolkata",
     },
   },
 
@@ -43,5 +45,5 @@ userSchema.pre("save", function (next) {
 
 const userModel = mongoose.model("user", userSchema);
 
-// module.exports = userModel;
+
 export default userModel
