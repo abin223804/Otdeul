@@ -1,6 +1,56 @@
 import userModel from "../models/userModel.js";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken'
+import axios from 'axios'
+
+
+
+async function sendOtpSMS(mobile, otp) {
+    const apiKey = 'YOUR_FASTTOSMS_API_KEY';
+    const senderId = 'YOUR_SENDER_ID';
+
+    const apiUrl = 'https://api.fast2sms.com/dev/bulkV2';
+
+    const message = `Your OTP for registration is: ${otp}`;
+    const payload = {
+        route: 'otp',
+        message,
+        sender: senderId,
+        language: 'english',
+        numbers: mobile,
+    };
+
+    try {
+        const response = await axios.post(apiUrl, payload, {
+            headers: {
+                'authorization': apiKey,
+                'Content-Type': 'application/json',
+                'cache-control': 'no-cache'
+            }
+        });
+
+        console.log('OTP sent via SMS:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error sending SMS:', error);
+        throw new Error('Error sending SMS');
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const userSignUp = async (req, res) => {
