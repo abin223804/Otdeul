@@ -57,4 +57,4 @@ const userSignUp = async (req, res) => {
     }
 };
 
-export default userSignUp;
+export default {userSignUp}

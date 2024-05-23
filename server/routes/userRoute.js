@@ -1,10 +1,12 @@
-import express from "express";
-const userRoute=express();
+import  express  from "express";
+
 import userController from '../controller/userController.js'
+
+const userRoute=express();
+
 
 userRoute.post("/signup",userController.userSignUp)
 
 
 
-
-export default userRoute()
+export default userRoute
