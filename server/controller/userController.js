@@ -3,8 +3,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import axios from "axios";
 
-
-
 const userSignUp = async (req, res) => {
   try {
     const { name, mobile, email, password } = req.body;
@@ -59,7 +57,7 @@ const userSignUp = async (req, res) => {
   }
 };
 
-const userSignIn = async (req, res) => {
+const userSignIn = async (req, res) => { 
   try {
     const { email, password } = req.body;
 
@@ -111,5 +109,16 @@ const userSignIn = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
 
 export default { userSignUp, userSignIn };
