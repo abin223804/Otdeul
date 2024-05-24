@@ -6,7 +6,7 @@ const userRoute=express();
 
 
 userRoute.post("/signUp",userController.createUser)
-// userRoute.post("/signIn",userController.userSignIn)
+userRoute.post("/signIn",userController.loginUser)
 
 
 
