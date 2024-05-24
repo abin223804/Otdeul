@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: "string", required: true },
+    username: {
+      type: "string",
+      required: true,
+    },
     email: {
       type: String,
       unique: true,
@@ -20,16 +23,10 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
-    role: { type: String },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      timezone: "Asia/Kolkata",
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-      timezone: "Asia/Kolkata",
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
   },
 
@@ -38,12 +35,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
 const userModel = mongoose.model("user", userSchema);
 
-
-export default userModel
+export default userModel;
