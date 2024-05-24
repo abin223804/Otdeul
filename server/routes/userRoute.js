@@ -2,16 +2,29 @@ import  express  from "express";
 
 import userController from '../controller/userController.js'
 
-const userRoute=express();
+import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
 
-userRoute.post("/signUp",userController.createUser)
-userRoute.post("/signIn",userController.loginUser)
-userRoute.post("/signOut",userController.logoutCurrentUser)
-userRoute.get("/allUsers",userController.getAllUsers)
+const router=express();
+
+
+router.post("/signUp",userController.createUser)
+router.get("/authUser",authenticate)
+router.get("/authUser",authorizeAdmin)
+router.get("/allUsers",userController.getAllUsers)
+
+
+
+
+router.post("/signIn",userController.loginUser)
+router.post("/signOut",userController.logoutCurrentUser)
+
+
+router.get("/getUserProfile",authenticate,userController.getCurrentUserProfile)
 
 
 
 
 
-export default userRoute
+
+export default router

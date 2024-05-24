@@ -81,10 +81,29 @@ const getAllUsers = asyncHandler(async (req, res) => {
 });
 
 
+const getCurrentUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.json({
+      _id: user._id,
+      username: user.username,
+      mobile: user.mobile,
+      email: user.email,
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found.");
+  }
+});
 
 
 
-export default {createUser,loginUser,logoutCurrentUser,getAllUsers }
+
+
+
+
+export default {createUser,loginUser,logoutCurrentUser,getAllUsers,getCurrentUserProfile }
 
 
 
