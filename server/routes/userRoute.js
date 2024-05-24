@@ -21,9 +21,7 @@ router.put("/updateCurrentUserProfile",authenticate,userController.updateCurrent
 
 // ADMIN ROUTES 👇
 
-router.put("/updateUserProfile/:id",authenticate,userController.updateCurrentUserProfile)
-
-
+router.delete("/deleteUser/:id",authenticate,userController.deleteUserById)
 
 
 
