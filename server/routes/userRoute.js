@@ -13,15 +13,17 @@ router.get("/authUser",authenticate)
 router.get("/authUser",authorizeAdmin)
 router.get("/allUsers",userController.getAllUsers)
 
-
-
-
 router.post("/signIn",userController.loginUser)
 router.post("/signOut",userController.logoutCurrentUser)
 
-
 router.get("/getUserProfile",authenticate,userController.getCurrentUserProfile)
-router.put("/updateUserProfile",authenticate,userController.updateCurrentUserProfile)
+router.put("/updateCurrentUserProfile",authenticate,userController.updateCurrentUserProfile)
+
+// ADMIN ROUTES 👇
+
+router.put("/updateUserProfile/:id",authenticate,userController.updateCurrentUserProfile)
+
+
 
 
 
