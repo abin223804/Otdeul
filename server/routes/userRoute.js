@@ -5,8 +5,8 @@ import userController from '../controller/userController.js'
 const userRoute=express();
 
 
-userRoute.post("/signUp",userController.userSignUp)
-userRoute.post("/signIn",userController.userSignIn)
+userRoute.post("/signUp",userController.createUser)
+// userRoute.post("/signIn",userController.userSignIn)
 
 
 
