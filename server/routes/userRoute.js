@@ -21,6 +21,8 @@ router.post("/signOut",userController.logoutCurrentUser)
 
 
 router.get("/getUserProfile",authenticate,userController.getCurrentUserProfile)
+router.put("/updateUserProfile",authenticate,userController.updateCurrentUserProfile)
+
 
 
 
