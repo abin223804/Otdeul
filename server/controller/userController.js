@@ -75,10 +75,16 @@ const logoutCurrentUser = asyncHandler(async (req, res) => {
 
 
 
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({});
+  res.json(users);
+});
 
 
 
-export default {createUser,loginUser,logoutCurrentUser }
+
+
+export default {createUser,loginUser,logoutCurrentUser,getAllUsers }
 
 
 
