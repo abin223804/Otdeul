@@ -3,24 +3,77 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
 
+// default register system  👇
+// const createUser = asyncHandler(async (req, res) => {
+//   const { username,mobile, email, password } = req.body;
+
+//   if (!username || !email || !mobile  || !password) {
+//     throw new Error("Please fill all the inputs.");
+//   }
+
+//   const userExists = await User.findOne({ email });
+//   if (userExists) res.status(400).send("User already exists");
+
+//   const salt = await bcrypt.genSalt(10);
+//   const hashedPassword = await bcrypt.hash(password, salt);
+//   const newUser = new User({ username,mobile, email, password: hashedPassword });
+
+//   try {
+//     await newUser.save();
+//     createToken(res, newUser._id);
+
+//     res.status(201).json({
+//       _id: newUser._id,
+//       username: newUser.username,
+//       mobile: newUser.mobile,
+//       email: newUser.email,
+//       isAdmin: newUser.isAdmin,
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     throw new Error("Invalid user data");
+//   }
+// });
+
+
 
 const createUser = asyncHandler(async (req, res) => {
-  const { username,mobile, email, password } = req.body;
+  const { username, mobile, email, password, method } = req.body;
 
-  if (!username || !email || !mobile  || !password) {
-    throw new Error("Please fill all the inputs.");
+  if (!username || !email || !mobile || !password || !method) {
+    res.status(400).json({ message: "Please fill all the inputs." });
+    return;
   }
 
   const userExists = await User.findOne({ email });
-  if (userExists) res.status(400).send("User already exists");
+  if (userExists) {
+    res.status(400).json({ message: "User already exists" });
+    return;
+  }
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const newUser = new User({ username,mobile, email, password: hashedPassword });
+  const newUser = new User({
+    username,
+    mobile,
+    email,
+    password: hashedPassword,
+    otp: generateOTP(),
+    otpExpires: Date.now() + 10 * 60 * 1000 // OTP valid for 10 minutes
+  });
 
   try {
+    // Send OTP based on the preferred method
+    if (method === 'email') {
+      await sendEmailOTP(email, newUser.otp);
+    } else if (method === 'sms') {
+      await sendSMSOTP(mobile, newUser.otp);
+    } else {
+      res.status(400).json({ message: "Invalid method" });
+      return;
+    }
+
     await newUser.save();
-    createToken(res, newUser._id);
 
     res.status(201).json({
       _id: newUser._id,
@@ -28,12 +81,16 @@ const createUser = asyncHandler(async (req, res) => {
       mobile: newUser.mobile,
       email: newUser.email,
       isAdmin: newUser.isAdmin,
+      message: `OTP sent via ${method}`
     });
   } catch (error) {
-    res.status(400);
-    throw new Error("Invalid user data");
+    res.status(400).json({ message: "Invalid user data", error: error.message });
   }
 });
+
+
+
+
 
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -178,7 +235,7 @@ const updateUserById = asyncHandler(async (req, res) => {
       username: updatedUser.username,
       email: updatedUser.email,
       mobile: updatedUser.mobile,
-      isAdmin: updatedUser.isAdmin,
+isAdmin: updatedUser.isAdmin,
     });
   } else {
     res.status(404);

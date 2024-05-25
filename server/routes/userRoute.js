@@ -19,6 +19,9 @@ router.post("/signOut",userController.logoutCurrentUser)
 router.get("/getUserProfile",authenticate,userController.getCurrentUserProfile)
 router.put("/updateCurrentUserProfile",authenticate,userController.updateCurrentUserProfile)
 
+
+
+
 // ADMIN ROUTES 👇
 
 router.delete("/deleteUser/:id",authenticate,userController.deleteUserById)
