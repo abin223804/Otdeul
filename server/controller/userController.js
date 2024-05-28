@@ -38,13 +38,22 @@ import axios from "axios";
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
-const sendOtp = asyncHandler(async (req, res) => {
-  const { mobile } = req.body;
 
-  if (!mobile) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Mobile number is required" });
+const sendOtp = asyncHandler(async (req, res) => {
+  const { username, email, mobile, password } = req.body;
+
+  if (!username || !email || !mobile || !password) {
+    return res.status(400).json({ success: false, message: "Please fill all the inputs." });
+  }
+
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    return res.status(400).json({ success: false, message: "User already exists" });
+  }
+
+  const userMobileExists = await User.findOne({ mobile });
+  if (userMobileExists) {
+    return res.status(400).json({ success: false, message: "Mobile number already exists" });
   }
 
   const otp = generateOTP();
@@ -59,28 +68,25 @@ const sendOtp = asyncHandler(async (req, res) => {
         language: "english",
         flash: 0,
         numbers: mobile,
-        sender_id: "FSTSMS",
+        sender_id: "FSTSMS"
       },
       {
         headers: {
           authorization: process.env.FAST2SMS_API_KEY,
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       }
     );
 
-    const user = await User.findOne({ mobile });
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (user) {
-      user.otp = otp;
-      await user.save();
-    } else {
-      const newUser = new User({ mobile, otp });
-      await newUser.save();
-    }
+    // Create new user with OTP and unverified status
+    const newUser = new User({ username, mobile, email, password: hashedPassword, otp, isVerified: false });
+    await newUser.save();
 
-    res.json({ success: true, message: "OTP sent successfully" });
-    console.log(otp);
+    res.status(201).json({ success: true, message: "OTP sent successfully" });
   } catch (error) {
     console.error("Error sending OTP:", error);
     res.status(500).json({ success: false, error: "Error sending OTP" });
@@ -88,25 +94,22 @@ const sendOtp = asyncHandler(async (req, res) => {
 });
 
 
-
-
 const verifyOtp = asyncHandler(async (req, res) => {
   const { mobile, otp } = req.body;
 
   if (!mobile || !otp) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Mobile number and OTP are required" });
+    return res.status(400).json({ success: false, message: "Mobile number and OTP are required" });
   }
+
   const user = await User.findOne({ mobile });
 
   if (!user) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid mobile number" });
+    return res.status(400).json({ success: false, message: "Invalid mobile number" });
   }
+
   if (user.otp === otp) {
     user.isVerified = true;
+    user.otp = undefined; // Clear OTP after verification
     await user.save();
     res.json({ success: true, message: "OTP verified successfully" });
   } else {
@@ -114,49 +117,29 @@ const verifyOtp = asyncHandler(async (req, res) => {
   }
 });
 
-const createUser = asyncHandler(async (req, res) => {
-  try {
-    const { username, mobile, email, password } = req.body;
 
-    if (!username || !email || !mobile || !password) {
-      throw new Error("Please fill all the inputs.");
-    }
 
-    const user = await User.findOne({ mobile });
 
-    if (!user || !user.isVerified) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Mobile number not verified" });
-    }
 
-    if (user && user.email) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
-    }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
-    user.username = username;
-    user.email = email;
-    user.password = hashedPassword;
-    await user.save();
 
-    createToken(res, user._id);
 
-    res.status(201).json({
-      _id: user._id,
-      username: user.username,
-      mobile: user.mobile,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const loginUser = asyncHandler(async (req, res) => {
   try {
