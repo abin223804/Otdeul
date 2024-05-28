@@ -92,8 +92,13 @@ const verifyOtp = asyncHandler(async (req, res) => {
   if (user.otp === otp) {
     user.isVerified = true;
     user.otp = undefined; // Clear OTP after verification
+
+
+    const token = user.generateJWT();
+
+
     await user.save();
-    res.json({ success: true, message: "OTP verified successfully" });
+    res.json({ success: true, message: "OTP verified successfully", token });
   } else {
     res.status(400).json({ success: false, message: "Invalid OTP" });
   }
