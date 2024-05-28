@@ -80,11 +80,15 @@ const sendOtp = asyncHandler(async (req, res) => {
     }
 
     res.json({ success: true, message: "OTP sent successfully" });
+    console.log(otp);
   } catch (error) {
     console.error("Error sending OTP:", error);
     res.status(500).json({ success: false, error: "Error sending OTP" });
   }
 });
+
+
+
 
 const verifyOtp = asyncHandler(async (req, res) => {
   const { mobile, otp } = req.body;
