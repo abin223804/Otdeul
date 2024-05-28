@@ -11,7 +11,6 @@ const router=express();
 
 router.post("/sendOtp",userController.sendOtp)
 router.post("/verifyOtp",userController.verifyOtp)
-router.post("/signUp",userController.createUser)
 
 
 

@@ -38,7 +38,6 @@ import axios from "axios";
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
-
 const sendOtp = asyncHandler(async (req, res) => {
   const { username, email, mobile, password } = req.body;
 
@@ -57,10 +56,11 @@ const sendOtp = asyncHandler(async (req, res) => {
   }
 
   const otp = generateOTP();
+  console.log(otp);
 
   try {
     // Send OTP via FastToSMS
-    await axios.post(
+    const response = await axios.post(
       "https://www.fast2sms.com/dev/bulkV2",
       {
         route: "q",
@@ -77,6 +77,10 @@ const sendOtp = asyncHandler(async (req, res) => {
         }
       }
     );
+
+    if (response.data.return !== true) {
+      return res.status(500).json({ success: false, message: "Failed to send OTP" });
+    }
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
@@ -98,13 +102,17 @@ const verifyOtp = asyncHandler(async (req, res) => {
   const { mobile, otp } = req.body;
 
   if (!mobile || !otp) {
-    return res.status(400).json({ success: false, message: "Mobile number and OTP are required" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Mobile number and OTP are required" });
   }
 
   const user = await User.findOne({ mobile });
 
   if (!user) {
-    return res.status(400).json({ success: false, message: "Invalid mobile number" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid mobile number" });
   }
 
   if (user.otp === otp) {
@@ -117,59 +125,39 @@ const verifyOtp = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const loginUser = asyncHandler(async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    console.log(email);
-    console.log(password);
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please fill all the inputs." });
+  }
 
-    const existingUser = await User.findOne({ email });
+  const user = await User.findOne({ email });
 
-    if (existingUser) {
-      const isPasswordValid = await bcrypt.compare(
-        password,
-        existingUser.password
-      );
+  if (!user || !user.isVerified) {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "Invalid credentials or user not verified",
+      });
+  }
 
-      if (isPasswordValid) {
-        createToken(res, existingUser._id);
+  const isMatch = await bcrypt.compare(password, user.password);
 
-        res.status(201).json({
-          _id: existingUser._id,
-          username: existingUser.username,
-          email: existingUser.email,
-          isAdmin: existingUser.isAdmin,
-        });
-        return;
-      }
-    }
-  } catch (error) {
-    console.error(error);
+  if (isMatch) {
+    createToken(res, user._id);
+    res.json({
+      _id: user._id,
+      username: user.username,
+      mobile: user.mobile,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    });
+  } else {
+    res.status(400).json({ success: false, message: "Invalid credentials" });
   }
 });
 
@@ -320,7 +308,7 @@ const updateUserById = asyncHandler(async (req, res) => {
 export default {
   sendOtp,
   verifyOtp,
-  createUser,
+ 
   loginUser,
   logoutCurrentUser,
   getAllUsers,
