@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken"; // Import jwt for generating tokens
 
 const userSchema = new mongoose.Schema(
   {
     username: {
-      type: "string",
+      type: String,
       required: true,
     },
     email: {
@@ -13,9 +14,8 @@ const userSchema = new mongoose.Schema(
     },
     mobile: {
       type: String,
-      required: true,
       unique: true,
-
+      required: true,
     },
     password: {
       type: String,
@@ -24,24 +24,42 @@ const userSchema = new mongoose.Schema(
     profilePic: {
       type: String,
     },
-
     isAdmin: {
       type: Boolean,
-     default: false,
+      default: false,
     },
-    otp: { type: String },
-    
-    isVerified: { type: Boolean, default: false },
-
-  
-
+    otp: String,
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
-
   {
     timestamps: true,
   }
 );
 
-const userModel = mongoose.model("user", userSchema);
+// Pre-save hook to handle profile picture upload
+userSchema.pre('save', function (next) {
+  if (this.isModified('profilePic')) {
+    this.profilePic = `uploads/${this.profilePic}`; // Assuming Multer saves files in 'uploads' directory
+  }
+  next();
+});
+
+// Method to generate JWT
+userSchema.methods.generateJWT = function () {
+  const token = jwt.sign(
+    {
+      _id: this._id,
+      number: this.mobile,
+    },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: "7d" }
+  );
+  return token;
+};
+
+const userModel = mongoose.model("User", userSchema);
 
 export default userModel;

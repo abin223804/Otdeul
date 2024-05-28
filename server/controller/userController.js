@@ -3,40 +3,14 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
 import axios from "axios";
+import otpGenerator from 'otp-generator'
 
-// default register system  👇
-// const createUser = asyncHandler(async (req, res) => {
-//   const { username,mobile, email, password } = req.body;
 
-//   if (!username || !email || !mobile  || !password) {
-//     throw new Error("Please fill all the inputs.");
-//   }
 
-//   const userExists = await User.findOne({ email });
-//   if (userExists) res.status(400).send("User already exists");
 
-//   const salt = await bcrypt.genSalt(10);
-//   const hashedPassword = await bcrypt.hash(password, salt);
-//   const newUser = new User({ username,mobile, email, password: hashedPassword });
+const generateOTP = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
 
-//   try {
-//     await newUser.save();
-//     createToken(res, newUser._id);
 
-//     res.status(201).json({
-//       _id: newUser._id,
-//       username: newUser.username,
-//       mobile: newUser.mobile,
-//       email: newUser.email,
-//       isAdmin: newUser.isAdmin,
-//     });
-//   } catch (error) {
-//     res.status(400);
-//     throw new Error("Invalid user data");
-//   }
-// });
-
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
 const sendOtp = asyncHandler(async (req, res) => {
   const { username, email, mobile, password } = req.body;
@@ -87,7 +61,7 @@ const sendOtp = asyncHandler(async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user with OTP and unverified status
-    const newUser = new User({ username, mobile, email, password: hashedPassword, otp, isVerified: false });
+    const newUser = new User({ username, mobile, email, password: hashedPassword, otp, isVerified: false,  profilePic: req.file ? req.file.path : null });
     await newUser.save();
 
     res.status(201).json({ success: true, message: "OTP sent successfully" });
@@ -155,6 +129,7 @@ const loginUser = asyncHandler(async (req, res) => {
       mobile: user.mobile,
       email: user.email,
       isAdmin: user.isAdmin,
+      profilePic: user.profilePic
     });
   } else {
     res.status(400).json({ success: false, message: "Invalid credentials" });
