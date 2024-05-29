@@ -8,6 +8,7 @@ const app = express();
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import userRoute from "./routes/userRoute.js";
+import categoryRoute from "./routes/categoryRoute.js"
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ app.use('/uploads', express.static('uploads'));
 app.use(cookieParser());
 
 app.use("/user", userRoute);
+app.use("/user", categoryRoute);
+
 
 const PORT = process.env.PORT || 8000;
 

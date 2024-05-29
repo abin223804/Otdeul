@@ -1,6 +1,6 @@
-import { Category } from "../models/category";
-import asyncHandler from "../middlewares/asyncHandler";
-import upload from "../middlewares/multerMiddleware";
+import { Category } from "../models/category.js";
+import asyncHandler from "../middlewares/asyncHandler.js";
+import upload from "../middlewares/multerMiddleware.js";
 
 const createCategory = asyncHandler(async (req, res) => {
   try {
