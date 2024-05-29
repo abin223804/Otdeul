@@ -3,30 +3,34 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
 import axios from "axios";
-import otpGenerator from 'otp-generator'
+import otpGenerator from "otp-generator";
 
-
-
-
-const generateOTP = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
-
-
+const generateOTP = otpGenerator.generate(6, {
+  upperCaseAlphabets: false,
+  specialChars: false,
+});
 
 const sendOtp = asyncHandler(async (req, res) => {
   const { username, email, mobile, password } = req.body;
 
   if (!username || !email || !mobile || !password) {
-    return res.status(400).json({ success: false, message: "Please fill all the inputs." });
+    return res
+      .status(400)
+      .json({ success: false, message: "Please fill all the inputs." });
   }
 
   const userExists = await User.findOne({ email });
   if (userExists) {
-    return res.status(400).json({ success: false, message: "User already exists" });
+    return res
+      .status(400)
+      .json({ success: false, message: "User already exists" });
   }
 
   const userMobileExists = await User.findOne({ mobile });
   if (userMobileExists) {
-    return res.status(400).json({ success: false, message: "Mobile number already exists" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Mobile number already exists" });
   }
 
   const otp = generateOTP();
@@ -42,18 +46,20 @@ const sendOtp = asyncHandler(async (req, res) => {
         language: "english",
         flash: 0,
         numbers: mobile,
-        sender_id: "FSTSMS"
+        sender_id: "FSTSMS",
       },
       {
         headers: {
           authorization: process.env.FAST2SMS_API_KEY,
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       }
     );
 
     if (response.data.return !== true) {
-      return res.status(500).json({ success: false, message: "Failed to send OTP" });
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to send OTP" });
     }
 
     // Hash password
@@ -61,7 +67,15 @@ const sendOtp = asyncHandler(async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user with OTP and unverified status
-    const newUser = new User({ username, mobile, email, password: hashedPassword, otp, isVerified: false,  profilePic: req.file ? req.file.path : null });
+    const newUser = new User({
+      username,
+      mobile,
+      email,
+      password: hashedPassword,
+      otp,
+      isVerified: false,
+      profilePic: req.file ? req.file.path : null,
+    });
     await newUser.save();
 
     res.status(201).json({ success: true, message: "OTP sent successfully" });
@@ -70,7 +84,6 @@ const sendOtp = asyncHandler(async (req, res) => {
     res.status(500).json({ success: false, error: "Error sending OTP" });
   }
 });
-
 
 const verifyOtp = asyncHandler(async (req, res) => {
   const { mobile, otp } = req.body;
@@ -93,9 +106,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
     user.isVerified = true;
     user.otp = undefined; // Clear OTP after verification
 
-
     const token = user.generateJWT();
-
 
     await user.save();
     res.json({ success: true, message: "OTP verified successfully", token });
@@ -116,12 +127,10 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user || !user.isVerified) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Invalid credentials or user not verified",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Invalid credentials or user not verified",
+    });
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
@@ -134,7 +143,7 @@ const loginUser = asyncHandler(async (req, res) => {
       mobile: user.mobile,
       email: user.email,
       isAdmin: user.isAdmin,
-      profilePic: user.profilePic
+      profilePic: user.profilePic,
     });
   } else {
     res.status(400).json({ success: false, message: "Invalid credentials" });
@@ -288,7 +297,6 @@ const updateUserById = asyncHandler(async (req, res) => {
 export default {
   sendOtp,
   verifyOtp,
- 
   loginUser,
   logoutCurrentUser,
   getAllUsers,

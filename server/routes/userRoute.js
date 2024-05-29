@@ -12,8 +12,6 @@ const router=express();
 router.post("/sendOtp",userController.sendOtp)
 router.post("/verifyOtp",userController.verifyOtp)
 
-
-
 router.get("/authUser",authenticate)
 router.get("/authUser",authorizeAdmin)
 router.get("/allUsers",userController.getAllUsers)
