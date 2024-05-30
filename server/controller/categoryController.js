@@ -1,5 +1,5 @@
 import { Category } from "../models/category.js";
-import asyncHandler from "../middlewares/asyncHandler.js";
+// import asyncHandler from "../middlewares/asyncHandler.js";
 // import upload from "../middlewares/multerMiddleware.js";
 import multer from "multer";
 
@@ -122,10 +122,25 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+const listCategory = async(req,res)=>{
+  try {
+    const all = await Category.find({});
+    res.json(all);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(error.message);
+  }
+
+
+}
 
 
 
 
 
 
-export default { addCategory, updateCategory, deleteCategory};
+
+
+
+
+export default { addCategory, updateCategory, deleteCategory,listCategory};

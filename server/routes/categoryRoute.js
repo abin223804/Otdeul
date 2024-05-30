@@ -11,6 +11,7 @@ const router=express();
 router.post('/addCategory', uploadOptions,categoryController.addCategory);
 router.put('/updateCategory/:id', uploadOptions, categoryController.updateCategory);
 router.delete('/deleteCategory/:id', categoryController.deleteCategory);
+router.get('/listCategories', categoryController.listCategory);
 
 
 
