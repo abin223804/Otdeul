@@ -253,32 +253,43 @@ const updateSubcategory = async (req, res) => {
   }
 };
 
+const deleteSubcategory = async (req, res) => {
+  try {
+    const subCategoryId = req.params.id;
 
-const deleteSubcategory= async(req,res)=>{
+    const subCategory = await Subcategory.findByIdAndDelete(subCategoryId);
 
- try {
-  const subCategoryId = req.params.id;
+    if (!subCategory)
+      return res.status(404).send("The Subcategory was not found");
 
-  const subCategory = await Subcategory.findByIdAndDelete(subCategoryId);
-
-  if (!subCategory) return res.status(404).send("The Subcategory was not found");
-  
-  res.send({ message: "SubCategory successfully deleted" });
-  
- } catch (error) {
-  console.error(error);
+    res.send({ message: "SubCategory successfully deleted" });
+  } catch (error) {
+    console.error(error);
     res.status(500).send("An error occurred while deleting the subcategory");
- }
+  }
+};
 
 
 
+const listSubcategory= async(req,res) => {
 
+try {
 
+  const categoryId= req.params.id;
 
+  const category = await Category.findById(categoryId).populate('subcategories');
+ 
+  if (!category) {
+    return res.status(404).send("Category not found");
+  }
+  res.json(category.subcategories);
+  
+} catch (error) {
+  console.error(error);
+  return res.status(400).json(error.message);
 }
 
-
-
+}
 
 
 
@@ -295,4 +306,5 @@ export default {
   addSubcategory,
   updateSubcategory,
   deleteSubcategory,
+  listSubcategory
 };
