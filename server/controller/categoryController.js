@@ -1,7 +1,6 @@
 import { Category } from "../models/category.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
-import upload from "../middlewares/multerMiddleware.js";
-
+// import upload from "../middlewares/multerMiddleware.js";
 import multer from "multer";
 
 const FILE_TYPE_MAP = {
@@ -27,27 +26,24 @@ const storage = multer.diskStorage({
   },
 });
 
-
 export const uploadOptions = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
     const isValid = FILE_TYPE_MAP[file.mimetype];
-    let uploadError = new Error('invalid image type');
+    let uploadError = new Error("invalid image type");
     if (isValid) {
       uploadError = null;
     }
     cb(uploadError, isValid);
-  }
+  },
 }).fields([
-  { name: 'icon', maxCount: 1 },
-  { name: 'coverImage', maxCount: 1 },
-  { name: 'banner', maxCount: 1 }
+  { name: "icon", maxCount: 1 },
+  { name: "coverImage", maxCount: 1 },
+  { name: "banner", maxCount: 1 },
 ]);
 
-
-
-
 const addCategory = async (req, res) => {
+ try {
   const files = req.files;
   if (!files) return res.status(400).send("No image in the request");
 
@@ -55,9 +51,7 @@ const addCategory = async (req, res) => {
   const basePath = `${req.protocol}://${req.get("host")}/public/uploads`;
 
   const icon = files.icon ? `${basePath}${files.icon[0].filename}` : null;
-  const coverImage = files.coverImage
-    ? `${basePath}${files.coverImage[0].filename}`
-    : null;
+  const coverImage = files.coverImage? `${basePath}${files.coverImage[0].filename}` : null;
   const banner = files.banner ? `${basePath}${files.banner[0].filename}` : null;
 
   let category = new Category({
@@ -73,31 +67,51 @@ const addCategory = async (req, res) => {
   if (!category) return res.status(500).send("The category cannot be created");
 
   res.send(category);
+
+ } catch (error) {
+  console.error(error);
+ }
 };
 
-const updateCategory = asyncHandler(async (req, res) => {
+const updateCategory = async (req, res) => {
   try {
-    const { categoryId } = req.params;
-    upload(req, res, async function (err) {
-      if (err) {
-        return res.status(400).json({ error: err.message });
+    const categoryId = req.params.id;
+    const files = req.files;
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads`;
+
+    let updateData = {
+      name: req.body.name,
+      description: req.body.description
+    };
+
+    if (files) {
+      if (files.icon) {
+        updateData.icon = `${basePath}${files.icon[0].filename}`;
       }
-      // File uploaded successfully
-      const { name, description, banner, icon, coverImage } = req.body;
-      const category = await Category.findByIdAndUpdate(
-        categoryId,
-        { name, description, banner, icon, coverImage },
-        { new: true }
-      );
-      if (!category) {
-        return res.status(404).json({ error: "Category not found" });
+      if (files.coverImage) {
+        updateData.coverImage = `${basePath}${files.coverImage[0].filename}`;
       }
-      res.status(200).json(category);
-    });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+      if (files.banner) {
+        updateData.banner = `${basePath}${files.banner[0].filename}`;
+      }
+    }
+
+    const category = await Category.findByIdAndUpdate(categoryId, updateData, { new: true });
+
+    if (!category) return res.status(500).send("The category cannot be updated");
+
+    res.send(category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while updating the category");
   }
-});
+};
+
+
+
+
+
+
 
 const removeCategory = asyncHandler(async (req, res) => {
   try {

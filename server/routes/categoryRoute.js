@@ -7,8 +7,10 @@ const router=express();
 
 
 // Category routes
-// router.post("/addCategory", categoryController.createCategory);
+
 router.post('/addCategory', uploadOptions,categoryController.addCategory);
+router.put('/updateCategory/:id', uploadOptions, categoryController.updateCategory);
+
 
 
 
