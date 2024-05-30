@@ -24,6 +24,8 @@ router.post('/addSubcategory',uploadOptions,categoryController.addSubcategory);
 router.put('/updateSubcategory/:id',uploadOptions,categoryController.updateSubcategory);
 router.delete('/deleteSubcategory/:id',categoryController.deleteSubcategory);
 router.get('/listsubCategories/:id', categoryController.listSubcategory);
+router.get('/readSubCategory/:id', categoryController.readSubCategory);
+
 
 
 

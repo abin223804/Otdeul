@@ -291,6 +291,16 @@ try {
 
 }
 
+const readSubCategory = async (req, res) => {
+  try {
+    const subCategory = await Subcategory.findOne({ _id: req.params.id });
+    return res.status(200).json(subCategory);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(error.message);
+  }
+};
+
 
 
 
@@ -306,5 +316,6 @@ export default {
   addSubcategory,
   updateSubcategory,
   deleteSubcategory,
-  listSubcategory
+  listSubcategory,
+  readSubCategory,
 };
