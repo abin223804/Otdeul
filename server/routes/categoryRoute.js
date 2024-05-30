@@ -8,9 +8,9 @@ const router=express();
 
 // Category routes
 
-router.post('/addCategory', uploadOptions,categoryController.addCategory);
-router.put('/updateCategory/:id', uploadOptions, categoryController.updateCategory);
-router.delete('/deleteCategory/:id', categoryController.deleteCategory);
+router.post('/addCategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addCategory);
+router.put('/updateCategory/:id',authenticate, authorizeAdmin , uploadOptions, categoryController.updateCategory);
+router.delete('/deleteCategory/:id',authenticate, authorizeAdmin , categoryController.deleteCategory);
 router.get('/listCategories', categoryController.listCategory);
 router.get('/readCategory/:id', categoryController.readCategory);
 
