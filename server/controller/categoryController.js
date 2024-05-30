@@ -1,4 +1,4 @@
-import { Category } from "../models/category.js";
+import { Category,Subcategory } from "../models/category.js";
 // import asyncHandler from "../middlewares/asyncHandler.js";
 // import upload from "../middlewares/multerMiddleware.js";
 import multer from "multer";
@@ -151,8 +151,58 @@ const readCategory = async(req,res)=>{
 
 
 
+// Subcategory controller functions
+
+const addSubcategory = async (req, res) => {
+  try {
+    const files = req.files;
+    if (!files) return res.status(400).send("No image in the request");
+
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads`;
+
+    const icon = files.icon ? `${basePath}${files.icon[0].filename}` : null;
+    const coverImage = files.coverImage ? `${basePath}${files.coverImage[0].filename}` : null;
+    const banner = files.banner ? `${basePath}${files.banner[0].filename}` : null;
+
+    const { name, description, parentCategoryId } = req.body;
+
+    // Validate parentCategoryId
+    const parentCategory = await Category.findById(parentCategoryId);
+    if (!parentCategory) {
+      return res.status(400).send("Invalid parent category");
+    }
+
+    let subcategory = new Subcategory({
+      name,
+      description,
+      icon,
+      coverImage,
+      banner,
+      parentCategoryId,
+    });
+
+    subcategory = await subcategory.save();
+
+    if (!subcategory) return res.status(500).send("The subcategory cannot be created");
+
+    // Add subcategory reference to parent category
+    parentCategory.subcategories.push(subcategory._id);
+    await parentCategory.save();
+
+    res.send(subcategory);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while creating the subcategory");
+  }
+};
 
 
 
 
-export default { addCategory, updateCategory, deleteCategory, listCategory,readCategory };
+
+
+
+
+
+
+export default { addCategory, updateCategory, deleteCategory, listCategory,readCategory,addSubcategory };

@@ -17,6 +17,14 @@ router.get('/readCategory/:id', categoryController.readCategory);
 
 
 
+//subcategory routes
+
+
+router.post('/addSubcategory',uploadOptions,categoryController.addSubcategory);
+
+
+
+
 
 
 
