@@ -43,34 +43,38 @@ export const uploadOptions = multer({
 ]);
 
 const addCategory = async (req, res) => {
- try {
-  const files = req.files;
-  if (!files) return res.status(400).send("No image in the request");
+  try {
+    const files = req.files;
+    if (!files) return res.status(400).send("No image in the request");
 
-  // const fileName = file.filename;
-  const basePath = `${req.protocol}://${req.get("host")}/public/uploads`;
+    // const fileName = file.filename;
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads`;
 
-  const icon = files.icon ? `${basePath}${files.icon[0].filename}` : null;
-  const coverImage = files.coverImage? `${basePath}${files.coverImage[0].filename}` : null;
-  const banner = files.banner ? `${basePath}${files.banner[0].filename}` : null;
+    const icon = files.icon ? `${basePath}${files.icon[0].filename}` : null;
+    const coverImage = files.coverImage
+      ? `${basePath}${files.coverImage[0].filename}`
+      : null;
+    const banner = files.banner
+      ? `${basePath}${files.banner[0].filename}`
+      : null;
 
-  let category = new Category({
-    name: req.body.name,
-    description: req.body.description,
-    icon: icon,
-    coverImage: coverImage,
-    banner: banner,
-  });
+    let category = new Category({
+      name: req.body.name,
+      description: req.body.description,
+      icon: icon,
+      coverImage: coverImage,
+      banner: banner,
+    });
 
-  category = await category.save();
+    category = await category.save();
 
-  if (!category) return res.status(500).send("The category cannot be created");
+    if (!category)
+      return res.status(500).send("The category cannot be created");
 
-  res.send(category);
-
- } catch (error) {
-  console.error(error);
- }
+    res.send(category);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const updateCategory = async (req, res) => {
@@ -81,7 +85,7 @@ const updateCategory = async (req, res) => {
 
     let updateData = {
       name: req.body.name,
-      description: req.body.description
+      description: req.body.description,
     };
 
     if (files) {
@@ -96,9 +100,12 @@ const updateCategory = async (req, res) => {
       }
     }
 
-    const category = await Category.findByIdAndUpdate(categoryId, updateData, { new: true });
+    const category = await Category.findByIdAndUpdate(categoryId, updateData, {
+      new: true,
+    });
 
-    if (!category) return res.status(500).send("The category cannot be updated");
+    if (!category)
+      return res.status(500).send("The category cannot be updated");
 
     res.send(category);
   } catch (error) {
@@ -122,7 +129,7 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-const listCategory = async(req,res)=>{
+const listCategory = async (req, res) => {
   try {
     const all = await Category.find({});
     res.json(all);
@@ -130,8 +137,16 @@ const listCategory = async(req,res)=>{
     console.log(error);
     return res.status(400).json(error.message);
   }
+};
 
-
+const readCategory = async(req,res)=>{
+  try {
+    const category = await Category.findOne({ _id: req.params.id });
+    res.json(category);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(error.message);
+  }
 }
 
 
@@ -140,7 +155,4 @@ const listCategory = async(req,res)=>{
 
 
 
-
-
-
-export default { addCategory, updateCategory, deleteCategory,listCategory};
+export default { addCategory, updateCategory, deleteCategory, listCategory,readCategory };
