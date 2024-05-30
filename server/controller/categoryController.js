@@ -196,6 +196,56 @@ const addSubcategory = async (req, res) => {
   }
 };
 
+const updateSubcategory = async (req, res) => {
+  try {
+    const subcategoryId = req.params.id; // Get the subcategory ID from request parameters
+    const files = req.files;
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads`;
+
+    let updateData = {}; // Initialize an empty object to store update data
+
+    // Check if there are uploaded files and update image URLs accordingly
+    if (files) {
+      if (files.icon) {
+        updateData.icon = `${basePath}${files.icon[0].filename}`;
+      }
+      if (files.coverImage) {
+        updateData.coverImage = `${basePath}${files.coverImage[0].filename}`;
+      }
+      if (files.banner) {
+        updateData.banner = `${basePath}${files.banner[0].filename}`;
+      }
+    }
+
+    // Update other fields if provided in the request body
+    if (req.body.name) {
+      updateData.name = req.body.name;
+    }
+    if (req.body.description) {
+      updateData.description = req.body.description;
+    }
+    if (req.body.parentCategoryId) {
+      updateData.parentCategoryId = req.body.parentCategoryId;
+    }
+
+    // Find the subcategory by ID and update it with the new data
+    const subcategory = await Subcategory.findByIdAndUpdate(subcategoryId, updateData, { new: true });
+
+    console.log(updateData.name);
+
+
+    if (!subcategory) {
+      return res.status(404).send("Subcategory not found");
+    }
+
+    // console.log(subcategory.updateData.name);
+
+    res.send(subcategory); // Send the updated subcategory as the response
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while updating the subcategory");
+  }
+};
 
 
 
@@ -205,4 +255,5 @@ const addSubcategory = async (req, res) => {
 
 
 
-export default { addCategory, updateCategory, deleteCategory, listCategory,readCategory,addSubcategory };
+
+export default { addCategory, updateCategory, deleteCategory, listCategory,readCategory,addSubcategory,updateSubcategory };
