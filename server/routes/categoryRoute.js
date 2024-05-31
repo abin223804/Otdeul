@@ -20,10 +20,10 @@ router.get('/readCategory/:id', categoryController.readCategory);
 //subcategory routes
 
 
-router.post('/addSubcategory',uploadOptions,categoryController.addSubcategory);
-router.put('/updateSubcategory/:id',uploadOptions,categoryController.updateSubcategory);
-router.delete('/deleteSubcategory/:id',categoryController.deleteSubcategory);
-router.get('/listsubCategories/:id', categoryController.listSubcategory);
+router.post('/addSubcategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addSubcategory);
+router.put('/updateSubcategory/:id',authenticate, authorizeAdmin ,uploadOptions,categoryController.updateSubcategory);
+router.delete('/deleteSubcategory/:id',authenticate, authorizeAdmin ,categoryController.deleteSubcategory);
+router.get('/listSubCategories/:id', categoryController.listSubcategory);
 router.get('/readSubCategory/:id', categoryController.readSubCategory);
 
 

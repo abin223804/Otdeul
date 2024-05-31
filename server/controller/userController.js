@@ -2,71 +2,43 @@ import User from "../models/userModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
-import axios from "axios";
 import otpGenerator from "otp-generator";
+import fast2sms from 'fast-two-sms';
 
 const generateOTP = otpGenerator.generate(6, {
   upperCaseAlphabets: false,
   specialChars: false,
 });
 
-const sendOtp = asyncHandler(async (req, res) => {
-  const { username, email, mobile, password } = req.body;
-
+const sendOtp = async (username, email, mobile, password) => {
   if (!username || !email || !mobile || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Please fill all the inputs." });
+    throw new Error("Please fill all the inputs.");
   }
 
   const userExists = await User.findOne({ email });
   if (userExists) {
-    return res
-      .status(400)
-      .json({ success: false, message: "User already exists" });
+    throw new Error("User already exists");
   }
 
   const userMobileExists = await User.findOne({ mobile });
   if (userMobileExists) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Mobile number already exists" });
+    throw new Error("Mobile number already exists");
   }
 
   const otp = generateOTP();
   console.log(otp);
 
   try {
-    // Send OTP via FastToSMS
-    const response = await axios.post(
-      "https://www.fast2sms.com/dev/bulkV2",
-      {
-        route: "q",
-        message: `Your OTP for registration is: ${otp}`,
-        language: "english",
-        flash: 0,
-        numbers: mobile,
-        sender_id: "FSTSMS",
-      },
-      {
-        headers: {
-          authorization: process.env.FAST2SMS_API_KEY,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const options = {
+      authorization: process.env.FAST2SMS_API_KEY,
+      message: `Your OTP for registration is: ${otp}`,
+      numbers: [mobile],
+    };
+    await fast2sms.sendMessage(options);
 
-    if (response.data.return !== true) {
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to send OTP" });
-    }
-
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user with OTP and unverified status
     const newUser = new User({
       username,
       mobile,
@@ -77,28 +49,23 @@ const sendOtp = asyncHandler(async (req, res) => {
     });
     await newUser.save();
 
-    res.status(201).json({ success: true, message: "OTP sent successfully" });
+    return { success: true, message: "OTP sent successfully" };
   } catch (error) {
     console.error("Error sending OTP:", error);
-    res.status(500).json({ success: false, error: "Error sending OTP" });
+    throw new Error("Error sending OTP");
   }
-});
+};
 
-const verifyOtp = asyncHandler(async (req, res) => {
-  const { mobile, otp } = req.body;
 
+const verifyOtp = async (mobile, otp) => {
   if (!mobile || !otp) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Mobile number and OTP are required" });
+    throw new Error("Mobile number and OTP are required");
   }
 
   const user = await User.findOne({ mobile });
 
   if (!user) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid mobile number" });
+    throw new Error("Invalid mobile number");
   }
 
   if (user.otp === otp) {
@@ -108,11 +75,11 @@ const verifyOtp = asyncHandler(async (req, res) => {
     const token = user.generateJWT();
 
     await user.save();
-    res.json({ success: true, message: "OTP verified successfully", token });
+    return { success: true, message: "OTP verified successfully", token };
   } else {
-    res.status(400).json({ success: false, message: "Invalid OTP" });
+    throw new Error("Invalid OTP");
   }
-});
+};
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
