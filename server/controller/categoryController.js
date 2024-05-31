@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
     if (isValid) {
       uploadError = null;
     }
-    cb(uploadError, "public/uploads");
+    cb(uploadError, "public/uploads/category");
   },
   filename: function (req, file, cb) {
     const fileName = file.originalname.split(" ").join("-");
@@ -48,7 +48,8 @@ const addCategory = async (req, res) => {
     if (!files) return res.status(400).send("No image in the request");
 
     // const fileName = file.filename;
-    const basePath = `${req.protocol}://${req.get("host")}/public/uploads`;
+    
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads/category`;
 
     const icon = files.icon ? `${basePath}${files.icon[0].filename}` : null;
     const coverImage = files.coverImage
