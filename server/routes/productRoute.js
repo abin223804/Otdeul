@@ -8,7 +8,7 @@ const router=express();
 // for admin
 
 
-router.post("/addProduct",authenticate, authorizeAdmin, productController.createProduct);
+router.post("/addProduct",authenticate,authorizeAdmin, productController.createProduct);
 
 
 
