@@ -21,9 +21,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    profilePic: {
-      type: String,
-    },
     isAdmin: {
       type: Boolean,
       default: false,
@@ -40,8 +37,8 @@ const userSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to handle profile picture upload
-userSchema.pre('save', function (next) {
-  if (this.isModified('profilePic')) {
+userSchema.pre("save", function (next) {
+  if (this.isModified("profilePic")) {
     this.profilePic = `uploads/${this.profilePic}`; // Assuming Multer saves files in 'uploads' directory
   }
   next();

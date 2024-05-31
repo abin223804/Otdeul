@@ -269,27 +269,23 @@ const deleteSubcategory = async (req, res) => {
   }
 };
 
+const listSubcategory = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
 
+    const category = await Category.findById(categoryId).populate(
+      "subcategories"
+    );
 
-const listSubcategory= async(req,res) => {
-
-try {
-
-  const categoryId= req.params.id;
-
-  const category = await Category.findById(categoryId).populate('subcategories');
- 
-  if (!category) {
-    return res.status(404).send("Category not found");
+    if (!category) {
+      return res.status(404).send("Category not found");
+    }
+    res.json(category.subcategories);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json(error.message);
   }
-  res.json(category.subcategories);
-  
-} catch (error) {
-  console.error(error);
-  return res.status(400).json(error.message);
-}
-
-}
+};
 
 const readSubCategory = async (req, res) => {
   try {
@@ -300,12 +296,6 @@ const readSubCategory = async (req, res) => {
     return res.status(400).json(error.message);
   }
 };
-
-
-
-
-
-
 
 export default {
   addCategory,

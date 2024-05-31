@@ -74,7 +74,6 @@ const sendOtp = asyncHandler(async (req, res) => {
       password: hashedPassword,
       otp,
       isVerified: false,
-      profilePic: req.file ? req.file.path : null,
     });
     await newUser.save();
 
@@ -143,7 +142,6 @@ const loginUser = asyncHandler(async (req, res) => {
       mobile: user.mobile,
       email: user.email,
       isAdmin: user.isAdmin,
-      profilePic: user.profilePic,
     });
   } else {
     res.status(400).json({ success: false, message: "Invalid credentials" });
@@ -192,6 +190,10 @@ const getCurrentUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+
+
 const updateCurrentUserProfile = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -237,6 +239,7 @@ const deleteUserById = asyncHandler(async (req, res) => {
       }
 
       await User.deleteOne({ _id: user._id });
+
       res.json({
         user: user.username,
         message: "removed",
