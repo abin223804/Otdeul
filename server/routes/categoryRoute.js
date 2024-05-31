@@ -6,23 +6,38 @@ const router=express();
 
 
 
-// Category routes
+// Category routes 👇
+
+
+// for admin// for admin
+
 
 router.post('/addCategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addCategory);
 router.put('/updateCategory/:id',authenticate, authorizeAdmin , uploadOptions, categoryController.updateCategory);
 router.delete('/deleteCategory/:id',authenticate, authorizeAdmin , categoryController.deleteCategory);
+
+
+// for user
+
 router.get('/listCategories', categoryController.listCategory);
 router.get('/readCategory/:id', categoryController.readCategory);
 
 
 
 
-//subcategory routes
+//subcategory routes 👇
 
+
+// for admin
 
 router.post('/addSubcategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addSubcategory);
 router.put('/updateSubcategory/:id',authenticate, authorizeAdmin ,uploadOptions,categoryController.updateSubcategory);
 router.delete('/deleteSubcategory/:id',authenticate, authorizeAdmin ,categoryController.deleteSubcategory);
+
+
+
+// for user
+
 router.get('/listSubCategories/:id', categoryController.listSubcategory);
 router.get('/readSubCategory/:id', categoryController.readSubCategory);
 
