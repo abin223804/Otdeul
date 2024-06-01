@@ -2,6 +2,10 @@ import express from "express";
 import chalk from "chalk";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from 'helmet';
+import morgan from 'morgan';
+
+
 
 const app = express();
 
@@ -25,8 +29,13 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
-
 app.use(cookieParser());
+app.use(helmet());
+app.use(morgan('dev'));
+
+
+
+
 
 app.use("/user", userRoute);
 app.use("/user", categoryRoute);
