@@ -26,7 +26,7 @@ const productSchema = mongoose.Schema(
       rating: { type: Number, required: true, default: 0 },
       numReviews: { type: Number, required: true, default: 0 },
       dummyPrice: { type: Number, required: true, default: 0 },
-      offerPercentage: { type: Number, required: true,
+      offerPercentage: { type: Number, required: true,},
       price: { type: Number, required: true, default: 0 },
       Stock: { type: Number, required: true, default: 0 },
       color: { type: String, required: true },
@@ -34,7 +34,7 @@ const productSchema = mongoose.Schema(
       refund: { type: Boolean, default:true},
 
     },
-  },
+  
     { timestamps: true }
   );
   

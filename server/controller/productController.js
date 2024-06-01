@@ -15,7 +15,8 @@ try {
       if (req.files == undefined) {
         return res.status(400).json({ message: 'No file selected!' });
       } else {
-        const imagePaths = req.files.map(file => file.path);
+        const basePath = `${req.protocol}://${req.get("host")}/public/uploads/product`;
+        const imagePaths = req.files.map(file => basePath+file.path);
         const newProduct = new Product({
           productName: req.body.productName,
           images: imagePaths,
