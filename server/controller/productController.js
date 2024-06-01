@@ -3,48 +3,62 @@ import upload from '../middlewares/multerMiddleware.js';
 import asyncHandler from '../middlewares/asyncHandler.js';
 
 
-
-
-const createProduct =  asyncHandler(async(req, res) => {
-  
-try {
-  upload(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({ message: err });
-    } else {
-      if (req.files == undefined) {
-        return res.status(400).json({ message: 'No file selected!' });
+const createProduct = asyncHandler(async (req, res) => {
+  try {
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err });
       } else {
-        const basePath = `${req.protocol}://${req.get("host")}/public/uploads/product`;
-        const imagePaths = req.files.map(file => basePath+file.path);
-        const newProduct = new Product({
-          productName: req.body.productName,
-          images: imagePaths,
-          category: req.body.category,
-          subcategory: req.body.subcategory,
-          description: req.body.description,
-          rating: req.body.rating || 0,
-          numReviews: req.body.numReviews || 0,
-          dummyPrice: req.body.dummyPrice,
-          offerPercentage: req.body.offerPercentage,
-          price: req.body.price,
-          stock: req.body.stock,
-          color: req.body.color,
-          size: req.body.size,
-          refund: req.body.refund || true
-        });
+        if (!req.files || Object.keys(req.files).length === 0) {
+          return res.status(400).json({ message: 'No file selected!' });
+        } else {
+          const basePath = `${req.protocol}://${req.get("host")}/public/uploads/product`;
 
-        newProduct.save()
-          .then(product => res.status(201).json(product))
-          .catch(error => res.status(400).json({ message: 'Error saving product', error }));
+          const colorVariations = req.body.colors.map((colorData, index) => {
+            const images = req.files[`colors[${index}][images]`]
+              .map(file => basePath + '/' + file.filename);
+
+            const offerPercentage = parseFloat(colorData.offerPercentage);
+            const dummyPrice = parseFloat(req.body.dummyPrice);
+            const price = dummyPrice - (dummyPrice * offerPercentage / 100);
+
+            return {
+              color: colorData.color,
+              offerPercentage: offerPercentage,
+              images: images,
+              stock: parseInt(colorData.stock, 10),
+              price: price
+            };
+          });
+
+          const newProduct = new Product({
+            productName: req.body.productName,
+            category: req.body.category,
+            subcategory: req.body.subcategory,
+            description: req.body.description,
+            rating: req.body.rating || 0,
+            numReviews: req.body.numReviews || 0,
+            dummyPrice: req.body.dummyPrice,
+            size: req.body.size,
+            refund: req.body.refund || true,
+            colors: colorVariations
+          });
+
+          await newProduct.save()
+            .then(product => res.status(201).json(product))
+            .catch(error => res.status(400).json({ message: 'Error saving product', error }));
+        }
       }
-    }
-  });
-  
-} catch (error) {
-  console.error(error.message);
-}
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Server error', error });
+  }
 });
+
+
+
+
 
 
 

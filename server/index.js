@@ -2,10 +2,8 @@ import express from "express";
 import chalk from "chalk";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import helmet from 'helmet';
-import morgan from 'morgan';
-
-
+import helmet from "helmet";
+import morgan from "morgan";
 
 const app = express();
 
@@ -14,8 +12,8 @@ import connectDB from "./config/db.js";
 
 // routes
 import userRoute from "./routes/userRoute.js";
-import categoryRoute from "./routes/categoryRoute.js"
-import productRoute from "./routes/productRoute.js"
+import categoryRoute from "./routes/categoryRoute.js";
+import productRoute from "./routes/productRoute.js";
 
 dotenv.config();
 
@@ -28,20 +26,14 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 app.use(cookieParser());
 app.use(helmet());
-app.use(morgan('dev'));
-
-
-
-
+app.use(morgan("dev"));
 
 app.use("/user", userRoute);
 app.use("/user", categoryRoute);
 app.use("/product", productRoute);
-
-
 
 const PORT = process.env.PORT || 8000;
 
