@@ -15,7 +15,7 @@ const reviewSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-const productSchema = new Schema(
+const productSchema = mongoose.Schema(
     {
       productName: { type: String, required: true },
       images: [{ type: String, required: true }], 

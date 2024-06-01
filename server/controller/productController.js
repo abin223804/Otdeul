@@ -1,11 +1,11 @@
-import Product from '../models/product'; // Assuming the file structure
-import upload from '../middlewares/multerMiddleware';
+import Product from '../models/product.js'; // Assuming the file structure
+import upload from '../middlewares/multerMiddleware.js';
+import asyncHandler from '../middlewares/asyncHandler.js';
 
 
 
 
-
-const createProduct = async(req, res) => {
+const createProduct =  asyncHandler(async(req, res) => {
   
 try {
   upload(req, res, (err) => {
@@ -43,7 +43,7 @@ try {
 } catch (error) {
   console.error(error.message);
 }
-};
+});
 
 
 

@@ -7,8 +7,11 @@ const app = express();
 
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
+
+// routes
 import userRoute from "./routes/userRoute.js";
 import categoryRoute from "./routes/categoryRoute.js"
+import productRoute from "./routes/productRoute.js"
 
 dotenv.config();
 
@@ -27,6 +30,8 @@ app.use(cookieParser());
 
 app.use("/user", userRoute);
 app.use("/user", categoryRoute);
+app.use("/product", productRoute);
+
 
 
 const PORT = process.env.PORT || 8000;

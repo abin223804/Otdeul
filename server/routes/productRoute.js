@@ -1,6 +1,7 @@
 import  express  from "express";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import productController from "../controller/productController.js";
+
 const router=express();
 
 
@@ -8,7 +9,7 @@ const router=express();
 // for admin
 
 
-router.post("/addProduct",authenticate,authorizeAdmin, productController.createProduct);
+router.post('/addProduct',authenticate,authorizeAdmin, productController.createProduct);
 
 
 
@@ -18,8 +19,8 @@ router.post("/addProduct",authenticate,authorizeAdmin, productController.createP
 
 
 // for users
-router.get("/getProducts", productController.getProducts);
-router.get("/getProduct/:id", productController.getProducts);
+// router.get("/getProducts", productController.getProducts);
+// router.get("/getProduct/:id", productController.getProducts);
 
 
 
