@@ -13,23 +13,31 @@ const createProduct = asyncHandler(async (req, res) => {
       const basePath = `${req.protocol}://${req.get("host")}/public/uploads/product`;
       const productVariations = [];
 
-      req.body.variations.forEach(variationData => {
-        const sizes = variationData.sizes.map(sizeData => {
-          const images = req.files[`variations[${req.body.variations.indexOf(variationData)}][sizes][${variationData.sizes.indexOf(sizeData)}][images]`]
-            .map(file => basePath + '/' + file.filename);
+      const variations = req.body.variations; // assuming variations is already parsed correctly
 
-          return {
+      for (let varIndex = 0; varIndex < variations.length; varIndex++) {
+        const variationData = variations[varIndex];
+        const sizes = [];
+
+        for (let sizeIndex = 0; sizeIndex < variationData.sizes.length; sizeIndex++) {
+          const sizeData = variationData.sizes[sizeIndex];
+          const fieldName = `variations[${varIndex}][sizes][${sizeIndex}][images]`;
+          const images = (req.files || []).filter(file =>
+            file.fieldname === fieldName
+          ).map(file => basePath + '/' + file.filename);
+
+          sizes.push({
             size: sizeData.size,
             stock: parseInt(sizeData.stock, 10),
             images: images
-          };
-        });
+          });
+        }
 
         productVariations.push({
           color: variationData.color,
           sizes: sizes
         });
-      });
+      }
 
       const newProduct = new Product({
         productName: req.body.productName,
