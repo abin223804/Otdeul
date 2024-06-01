@@ -1,46 +1,32 @@
-import mongoose from "mongoose";
-const { ObjectId } = mongoose.Schema;
+import mongoose from 'mongoose';
 
-const reviewSchema = mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    rating: { type: Number, required: true },
-    comment: { type: String, required: true },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: "User",
-    },
-  },
-  { timestamps: true }
-);
+const { Schema } = mongoose;
 
-const colorSchema = mongoose.Schema(
-  {
-    color: { type: String, required: true },
-    offerPercentage: { type: Number, required: true },
-    images: [{ type: String, required: true }],
-    stock: { type: Number, required: true },
-    price: { type: Number, required: true }  // Calculated price field
-  }
-);
+const sizeSchema = new Schema({
+  size: { type: String, required: true },
+  stock: { type: Number, required: true },
+  images: [{ type: String, required: true }]
+});
 
-const productSchema = mongoose.Schema(
+const variationSchema = new Schema({
+  color: { type: String, required: true },
+  sizes: [sizeSchema]
+});
+
+const productSchema = new Schema(
   {
     productName: { type: String, required: true },
-    category: { type: ObjectId, ref: "Category" }, // Optional category reference
-    subcategory: { type: ObjectId, ref: "Subcategory" }, // Optional subcategory reference
+    variations: [variationSchema],
+    category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
+    subcategory: { type: Schema.Types.ObjectId, ref: 'Subcategory', required: true },
     description: { type: String, required: true },
-    reviews: [reviewSchema],
-    rating: { type: Number, required: true, default: 0 },
-    numReviews: { type: Number, required: true, default: 0 },
-    dummyPrice: { type: Number, required: true, default: 0 },
-    colors: [colorSchema], // Array of color variations
-    size: { type: String, required: true },
-    refund: { type: Boolean, default: true },
+    rating: { type: Number, default: 0 },
+    numReviews: { type: Number, default: 0 },
+    refund: { type: Boolean, default: true }
   },
   { timestamps: true }
 );
 
-const Product = mongoose.model("Product", productSchema);
+const Product = mongoose.model('Product', productSchema);
+
 export default Product;

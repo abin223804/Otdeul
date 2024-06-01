@@ -7,51 +7,45 @@ const createProduct = asyncHandler(async (req, res) => {
   try {
     upload(req, res, async (err) => {
       if (err) {
-        return res.status(400).json({ message: err });
-      } else {
-        if (!req.files || Object.keys(req.files).length === 0) {
-          return res.status(400).json({ message: 'No file selected!' });
-        } else {
-          const basePath = `${req.protocol}://${req.get("host")}/public/uploads/product`;
-
-          const colorVariations = req.body.colors.map((colorData, index) => {
-            const images = req.files[`colors[${index}][images]`]
-              .map(file => basePath + '/' + file.filename);
-
-            const offerPercentage = parseFloat(colorData.offerPercentage);
-            const dummyPrice = parseFloat(req.body.dummyPrice);
-            const price = dummyPrice - (dummyPrice * offerPercentage / 100);
-
-            return {
-              color: colorData.color,
-              offerPercentage: offerPercentage,
-              images: images,
-              stock: parseInt(colorData.stock, 10),
-              price: price
-            };
-          });
-
-          const newProduct = new Product({
-            productName: req.body.productName,
-            category: req.body.category,
-            subcategory: req.body.subcategory,
-            description: req.body.description,
-            rating: req.body.rating || 0,
-            numReviews: req.body.numReviews || 0,
-            dummyPrice: req.body.dummyPrice,
-            size: req.body.size,
-            refund: req.body.refund || true,
-            colors: colorVariations
-          });
-
-          await newProduct.save()
-            .then(product => res.status(201).json(product))
-            .catch(error => res.status(400).json({ message: 'Error saving product', error }));
-        }
+        return res.status(400).json({ message: err.message });
       }
+
+      const basePath = `${req.protocol}://${req.get("host")}/public/uploads/product`;
+      const productVariations = [];
+
+      req.body.variations.forEach(variationData => {
+        const sizes = variationData.sizes.map(sizeData => {
+          const images = req.files[`variations[${req.body.variations.indexOf(variationData)}][sizes][${variationData.sizes.indexOf(sizeData)}][images]`]
+            .map(file => basePath + '/' + file.filename);
+
+          return {
+            size: sizeData.size,
+            stock: parseInt(sizeData.stock, 10),
+            images: images
+          };
+        });
+
+        productVariations.push({
+          color: variationData.color,
+          sizes: sizes
+        });
+      });
+
+      const newProduct = new Product({
+        productName: req.body.productName,
+        variations: productVariations,
+        category: req.body.category,
+        subcategory: req.body.subcategory,
+        description: req.body.description,
+        rating: req.body.rating || 0,
+        numReviews: req.body.numReviews || 0,
+        refund: req.body.refund || true
+      });
+
+      await newProduct.save();
+      res.status(201).json(newProduct);
     });
   } catch (error) {
-    console.error(error.message);
     res.status(500).json({ message: 'Server error', error });
   }
 });
