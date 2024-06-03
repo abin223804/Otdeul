@@ -75,9 +75,80 @@ const createProduct = asyncHandler(async (req, res) => {
 
 
 
+//publish product
+
+const publishProduct = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    product.published = true;
+    await product.save();
+
+    res.status(200).json({ message: "Product published successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
+
+//Unpublish product
+
+const unpublishProduct = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    product.published = false;
+    await product.save();
+
+    res.status(200).json({ message: "Product unpublished successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
+
 
 
 // get or view products(all)
+
+const getAllProducts= asyncHandler( async(req,res)=>{
+
+
+try {
+
+  const products = await Product.find()
+
+  if(!products){
+    return res.status(404).json({ message: "No products found" });
+
+  } else{
+    res.status(200).json(products);
+  }
+  
+} catch (error) {
+  res.status(500).json({ message: "Server error", error });
+  
+}
+
+
+
+
+})
+
+
+
+
+
 
 
 // Read or view product(by id/category)
@@ -123,5 +194,8 @@ const createProduct = asyncHandler(async (req, res) => {
 
 export default {
   createProduct,
+  publishProduct,
+  unpublishProduct,
+  getAllProducts,
 
 };
