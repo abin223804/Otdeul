@@ -10,6 +10,8 @@ const router=express();
 
 
 router.post('/addProduct',authenticate,authorizeAdmin, productController.createProduct);
+router.put('/updateProduct/:id',authenticate,authorizeAdmin,productController.updateProduct);
+
 router.put('/publishProduct/:id',authenticate,authorizeAdmin,productController.publishProduct);
 router.put('/unPublishProduct/:id',authenticate,authorizeAdmin,productController.unpublishProduct);
 router.get('/getAllProducts_admin',authenticate,authorizeAdmin, productController.getAllProducts_admin);

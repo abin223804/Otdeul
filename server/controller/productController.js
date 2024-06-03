@@ -154,9 +154,94 @@ try {
 
 
 
-// Read or view product(by id/category)
+
+
+
+
+
+
 
 //update product
+
+const updateProduct = asyncHandler(async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+
+      const basePath = `${req.protocol}://${req.get("host")}/public/uploads/product`;
+      const productVariations = [];
+
+      const variations = req.body.variations;
+
+      for (let varIndex = 0; varIndex < variations.length; varIndex++) {
+        const variationData = variations[varIndex];
+        const sizes = [];
+
+        for (let sizeIndex = 0; sizeIndex < variationData.sizes.length; sizeIndex++) {
+          const sizeData = variationData.sizes[sizeIndex];
+          const fieldName = `variations[${varIndex}][sizes][${sizeIndex}][images]`;
+          const images = (req.files || [])
+            .filter((file) => file.fieldname === fieldName)
+            .map((file) => basePath + "/" + file.filename);
+
+          sizes.push({
+            size: sizeData.size,
+            stock: parseInt(sizeData.stock, 10),
+            images: images,
+          });
+        }
+
+        productVariations.push({
+          color: variationData.color,
+          sizes: sizes,
+        });
+      }
+
+      product.productName = req.body.productName || product.productName;
+      product.variations = productVariations.length > 0 ? productVariations : product.variations;
+      product.category = req.body.category || product.category;
+      product.subcategory = req.body.subcategory || product.subcategory;
+      product.description = req.body.description || product.description;
+      product.rating = req.body.rating !== undefined ? req.body.rating : product.rating;
+      product.numReviews = req.body.numReviews !== undefined ? req.body.numReviews : product.numReviews;
+      product.refund = req.body.refund !== undefined ? req.body.refund : product.refund;
+      product.published = req.body.published !== undefined ? req.body.published : product.published;
+
+      await product.save();
+      res.status(200).json(product);
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Delete product
 
@@ -199,6 +284,7 @@ export default {
   createProduct,
   publishProduct,
   unpublishProduct,
-  getAllProducts_admin
+  getAllProducts_admin,
+  updateProduct ,
 
 };
