@@ -34,6 +34,7 @@ const productSchema = new Schema(
     rating: { type: Number, default: 0 },
     reviews: [reviewSchema],
     refund: { type: Boolean, default: true },
+    published: { type: Boolean, default: false } 
   },
   { timestamps: true }
 );

@@ -60,6 +60,7 @@ const createProduct = asyncHandler(async (req, res) => {
         rating: req.body.rating || 0,
         numReviews: req.body.numReviews || 0,
         refund: req.body.refund || true,
+        published: req.body.published || false, 
       });
 
       await newProduct.save();
@@ -71,7 +72,13 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 
-// Read or view product(all)
+
+
+
+
+
+// get or view products(all)
+
 
 // Read or view product(by id/category)
 
