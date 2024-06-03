@@ -124,7 +124,7 @@ const unpublishProduct = asyncHandler(async (req, res) => {
 
 // get or view products(all)
 
-const getAllProducts= asyncHandler( async(req,res)=>{
+const getAllProducts_admin= asyncHandler( async(req,res)=>{
 
 
 try {
@@ -199,6 +199,6 @@ export default {
   createProduct,
   publishProduct,
   unpublishProduct,
-  getAllProducts,
+  getAllProducts_admin
 
 };
