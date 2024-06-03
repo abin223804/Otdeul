@@ -32,7 +32,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 app.use("/user", userRoute);
-app.use("/user", categoryRoute);
+app.use("/category", categoryRoute);
 app.use("/product", productRoute);
 
 const PORT = process.env.PORT || 8000;
