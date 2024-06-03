@@ -8,19 +8,14 @@ const router=express();
 
 // for admin
 
-
 router.post('/addProduct',authenticate,authorizeAdmin, productController.createProduct);
 router.put('/updateProduct/:id',authenticate,authorizeAdmin,productController.updateProduct);
 router.delete('/deleteProduct/:id',authenticate,authorizeAdmin,productController.deleteProduct);
 router.put('/publishProduct/:id',authenticate,authorizeAdmin,productController.publishProduct);
 router.put('/unPublishProduct/:id',authenticate,authorizeAdmin,productController.unpublishProduct);
 router.get('/getAllProducts_admin',authenticate,authorizeAdmin, productController.getAllProducts_admin);
-
-
-
-
-
-
+router.delete('/deleteCustomerReview/:id',authenticate,authorizeAdmin,productController.deleteCustomerReview);
+router.post('/replyCustomerReview/:id',authenticate,authorizeAdmin,productController.replyCustomerReview);
 
 
 
@@ -28,8 +23,8 @@ router.get('/getAllProducts_admin',authenticate,authorizeAdmin, productControlle
 // for users
 
 
-// router.get("/getProducts", productController.getProducts);
-// router.get("/getProduct/:id", productController.getProducts);
+router.get('/getProductByCategory/:category',productController.getProductByCategory);
+
 
 
 
