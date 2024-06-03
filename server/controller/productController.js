@@ -227,27 +227,9 @@ const updateProduct = asyncHandler(async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //Delete product
 
 const deleteProduct = asyncHandler(async(req,res) => {
-
- 
 
 try {
 
@@ -264,9 +246,6 @@ try {
   res.status(500).json({ message: "Server error", error });
   
 }
-
-
-
 })
 
 
@@ -275,6 +254,67 @@ try {
 
 //manage customer review (delete/reply)
 
+
+//delete customer review
+
+const deleteCustomerReview = asyncHandler(async(req,res)=>{
+  try {
+
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const review = product.reviews.id(req.params.reviewId);
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    review.remove();
+
+    product.numReviews = product.reviews.length;
+    if (product.reviews.length > 0) {
+      product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
+    } else {
+      product.rating = 0;
+    }
+
+    await product.save();
+
+    res.status(200).json({ message: "Review deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+})
+
+//reply customer review
+
+const replyCustomerReview = asyncHandler(async(req,res)=>{
+  try {
+
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const review = product.reviews.id(req.params.reviewId);
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    review.reply = req.body.reply ;
+
+    await product.save();
+
+    res.status(200).json({ message: "Reply added successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+})
 
 
 
@@ -315,5 +355,7 @@ export default {
   getAllProducts_admin,
   updateProduct ,
   deleteProduct,
+  deleteCustomerReview ,
+  replyCustomerReview ,
 
 };

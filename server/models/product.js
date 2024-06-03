@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 
 const reviewSchema = new Schema({
   review: { type: String, required: false },
+  reply: { type: String } ,
   image: { type: String, required: false },
   rating: { type: Number, required: false },
   user: { type: Schema.Types.ObjectId, ref: "User" }, // Assuming 'User' is the referenced model
@@ -33,6 +34,8 @@ const productSchema = new Schema(
     description: { type: String, required: true },
     rating: { type: Number, default: 0 },
     reviews: [reviewSchema],
+    numReviews: { type: Number, default: 0 },
+
     refund: { type: Boolean, default: true },
     published: { type: Boolean, default: false } 
   },
