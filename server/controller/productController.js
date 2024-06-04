@@ -107,6 +107,27 @@ const unpublishProduct = asyncHandler(async (req, res) => {
   }
 });
 
+
+//enable product to  quick deal
+
+
+
+//disable product to quick deal
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // refund/replace/return(doubt)
 
 // get or view products(all)
@@ -285,7 +306,7 @@ const replyCustomerReview = asyncHandler(async (req, res) => {
 
 // for user 👇
 
-//product browse by category
+//product browse by category  (only published)
 
 const getProductByCategory = asyncHandler(async (req, res) => {
   try {
@@ -296,11 +317,15 @@ const getProductByCategory = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    const products = await Product.find({ category: category._id }).populate('category').populate('subcategory');
+    const products = await Product.find({ category: category._id, published: true }).populate('category').populate('subcategory');
 
     if (products.length === 0) {
       return res.status(404).json({ message: "No products found in this category" });
     }
+
+
+
+  
 
     res.status(200).json({ categoryName: category.name, products });
   } catch (error) {
@@ -320,7 +345,7 @@ const getProductByCategory = asyncHandler(async (req, res) => {
 
 
 
-
+//get quickdeal product
 
 
 //product detail view
