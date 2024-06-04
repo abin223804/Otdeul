@@ -13,6 +13,8 @@ router.put('/updateProduct/:id',authenticate,authorizeAdmin,productController.up
 router.delete('/deleteProduct/:id',authenticate,authorizeAdmin,productController.deleteProduct);
 router.put('/publishProduct/:id',authenticate,authorizeAdmin,productController.publishProduct);
 router.put('/unPublishProduct/:id',authenticate,authorizeAdmin,productController.unpublishProduct);
+router.put('/enableQuickDeal/:id',authenticate,authorizeAdmin,productController.enableQuickDeal);
+router.put('/disableQuickDeal/:id',authenticate,authorizeAdmin,productController.disableQuickDeal);
 router.get('/getAllProducts_admin',authenticate,authorizeAdmin, productController.getAllProducts_admin);
 router.delete('/deleteCustomerReview/:id',authenticate,authorizeAdmin,productController.deleteCustomerReview);
 router.post('/replyCustomerReview/:id',authenticate,authorizeAdmin,productController.replyCustomerReview);
@@ -24,6 +26,9 @@ router.post('/replyCustomerReview/:id',authenticate,authorizeAdmin,productContro
 
 
 router.get('/getProductByCategory/:category',productController.getProductByCategory);
+router.get('/getQuickdealProducts',productController.getQuickDealProduct);
+
+//get products for quick deal
 
 
 

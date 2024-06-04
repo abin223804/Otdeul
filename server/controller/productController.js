@@ -110,12 +110,46 @@ const unpublishProduct = asyncHandler(async (req, res) => {
 
 //enable product to  quick deal
 
+const enableQuickDeal = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    product.quickDeal = true;
+    await product.save();
+
+    res.status(200).json({ message: "Product enabled in Quickdeal successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
+
 
 
 //disable product to quick deal
 
 
+const disableQuickDeal = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
 
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    product.quickDeal = false;
+    await product.save();
+
+    res.status(200).json({ message: "Product disabled in QuickDeal successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
 
 
 
@@ -323,10 +357,6 @@ const getProductByCategory = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "No products found in this category" });
     }
 
-
-
-  
-
     res.status(200).json({ categoryName: category.name, products });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
@@ -339,13 +369,27 @@ const getProductByCategory = asyncHandler(async (req, res) => {
 
 
 
-
 //product browse by Subcategory
 
 
+//get quickDeal product
+
+const getQuickDealProduct = asyncHandler(async(req,res)=>{
+
+ try {
+  const products = await Product.find({quickDeal:true})
+
+  if (products.length === 0) {
+    return res.status(404).json({ message: "No products found in quickdeal section" });
+  }
+  res.status(200).json({ quickDealProducts: products });
+  
+ } catch (error) {
+  res.status(500).json({ message: "Server error", error });
+ }
+})
 
 
-//get quickdeal product
 
 
 //product detail view
@@ -372,5 +416,9 @@ export default {
   deleteProduct,
   deleteCustomerReview,
   replyCustomerReview,
-  getProductByCategory
+  getProductByCategory,
+  enableQuickDeal ,
+  disableQuickDeal,
+  getQuickDealProduct ,
+
 };

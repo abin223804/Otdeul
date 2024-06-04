@@ -37,7 +37,9 @@ const productSchema = new Schema(
     numReviews: { type: Number, default: 0 },
 
     refund: { type: Boolean, default: true },
-    published: { type: Boolean, default: false } 
+    published: { type: Boolean, default: false } ,
+    quickDeal: { type: Boolean, default: false } 
+
   },
   { timestamps: true }
 );
