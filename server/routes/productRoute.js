@@ -26,7 +26,9 @@ router.post('/replyCustomerReview/:id',authenticate,authorizeAdmin,productContro
 
 
 router.get('/getProductByCategory/:category',productController.getProductByCategory);
-router.get('/getQuickdealProducts',productController.getQuickDealProduct);
+router.get('/getProductBySubCategory/:subcategory',productController.getProductBySubCategory);
+
+router.get('/getQuickDealProducts',productController.getQuickDealProduct);
 
 //get products for quick deal
 

@@ -1,5 +1,6 @@
 import Product from "../models/product.js"; 
-import { Category } from "../models/category.js";// Assuming the file structure
+import { Category } from "../models/category.js";
+import { Subcategory } from "../models/category.js";// Assuming the file structure
 import upload from "../middlewares/multerMiddleware.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
@@ -59,6 +60,7 @@ const createProduct = asyncHandler(async (req, res) => {
         numReviews: req.body.numReviews || 0,
         refund: req.body.refund || true,
         published: req.body.published || false,
+        quickDeal:req.body.quickDeal || false,
       });
 
       await newProduct.save();
@@ -244,12 +246,9 @@ const updateProduct = asyncHandler(async (req, res) => {
         req.body.numReviews !== undefined
           ? req.body.numReviews
           : product.numReviews;
-      product.refund =
-        req.body.refund !== undefined ? req.body.refund : product.refund;
-      product.published =
-        req.body.published !== undefined
-          ? req.body.published
-          : product.published;
+      product.refund =req.body.refund !== undefined ? req.body.refund : product.refund;
+      product.published = req.body.published !== undefined ? req.body.published: product.published;
+      product.quickDeal = req.body.quickDeal!== undefined ? req.body.quickDeal: product.quickDeal;
 
       await product.save();
       res.status(200).json(product);
@@ -366,12 +365,6 @@ const getProductByCategory = asyncHandler(async (req, res) => {
 
 
 
-
-
-
-//product browse by Subcategory
-
-
 //get quickDeal product
 
 const getQuickDealProduct = asyncHandler(async(req,res)=>{
@@ -388,6 +381,54 @@ const getQuickDealProduct = asyncHandler(async(req,res)=>{
   res.status(500).json({ message: "Server error", error });
  }
 })
+
+
+
+
+
+
+
+//product browse by Subcategory
+
+
+
+const getProductBySubCategory = asyncHandler(async (req, res) => {
+  try {
+    const subcategoryName = req.params.subcategory;
+    console.log(`Subcategory name received: ${subcategoryName}`);
+
+    const subcategory = await Subcategory.findOne({ name: subcategoryName });
+
+    if (!subcategory) {
+      console.log("Subcategory not found");
+      return res.status(404).json({ message: "Subcategory not found" });
+    }
+
+    console.log(`Subcategory found: ${subcategory}`);
+
+    const products = await Product.find({ subcategory: subcategory._id, published: true })
+                                  .populate('category')
+                                  .populate('subcategory');
+
+    if (products.length === 0) {
+      console.log("No published products found in this subcategory");
+      return res.status(404).json({ message: "No published products found in this subcategory" });
+    }
+
+    console.log(`Products found: ${products.length}`);
+    products.forEach(product => console.log(`Product ID: ${product._id}, Name: ${product.productName}`));
+
+    res.status(200).json({ subcategoryName: subcategory.name, products });
+  } catch (error) {
+    console.error(`Server error: ${error.message}`);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
+
+
+
 
 
 
@@ -417,6 +458,7 @@ export default {
   deleteCustomerReview,
   replyCustomerReview,
   getProductByCategory,
+  getProductBySubCategory,
   enableQuickDeal ,
   disableQuickDeal,
   getQuickDealProduct ,
