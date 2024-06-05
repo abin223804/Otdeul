@@ -134,6 +134,9 @@ const logoutCurrentUser = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
     const users = await User.find({});
@@ -266,6 +269,55 @@ const updateUserById = asyncHandler(async (req, res) => {
   }
 });
 
+
+const BlockUser = asyncHandler(async(req, res)=>{
+
+try {
+  const user= await User.findById( req.params.id);
+ 
+  if(!user) {
+    return res.status(404).json({message:"User not found"})
+  }
+
+user.isBlocked = true;
+
+await user.save();
+
+res.status(200).json({message:"User blocked  successfully"})
+
+} catch (error) {
+  res.status(500).json({ message: "Server error", error });
+  
+}
+
+})
+
+const unBlockUser = asyncHandler(async(req, res)=>{
+
+  try {
+   const user= await User.findById( req.params.id);
+   
+    if(!user) {
+      return res.status(404).json({message:"User not found"})
+    }
+  
+  User.isBlocked = false;
+  
+  await user.save();
+  
+  res.status(200).json({message:"User Unblocked  successfully"})
+  
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+    
+  }
+  
+  })
+
+
+
+
+
 export default {
   sendOtp,
   verifyOtp,
@@ -277,4 +329,6 @@ export default {
   deleteUserById,
   getUserById,
   updateUserById,
+  BlockUser,
+  unBlockUser,
 };

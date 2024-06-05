@@ -32,6 +32,11 @@ router.put("/updateCurrentUserProfile",authenticate,userController.updateCurrent
 router.delete("/deleteUser/:id",authenticate,userController.deleteUserById)
 router.get("/getUser/:id",authenticate,userController.getUserById)
 router.put("/updateUser/:id",authenticate,userController.updateUserById)
+router.put("/blockUser/:id",authenticate,userController.BlockUser)
+router.put("/unBlockUser/:id",authenticate,userController.unBlockUser)
+
+
+
 
 
 
