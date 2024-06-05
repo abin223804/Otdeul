@@ -16,6 +16,7 @@ router.put('/unPublishProduct/:id',authenticate,authorizeAdmin,productController
 router.put('/enableQuickDeal/:id',authenticate,authorizeAdmin,productController.enableQuickDeal);
 router.put('/disableQuickDeal/:id',authenticate,authorizeAdmin,productController.disableQuickDeal);
 router.put('/disableRefund/:id',authenticate,authorizeAdmin,productController.disableRefund);
+router.put('/enableRefund/:id',authenticate,authorizeAdmin,productController.enableRefund);
 
 
 
