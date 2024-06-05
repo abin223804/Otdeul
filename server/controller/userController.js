@@ -98,7 +98,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (!user || !user.isVerified) {
+  if (!user || !user.isVerified || user.isBlocked) {
     return res.status(400).json({
       success: false,
       message: "Invalid credentials or user not verified",
@@ -301,7 +301,7 @@ const unBlockUser = asyncHandler(async(req, res)=>{
       return res.status(404).json({message:"User not found"})
     }
   
-  User.isBlocked = false;
+  user.isBlocked = false;
   
   await user.save();
   
