@@ -15,6 +15,10 @@ router.put('/publishProduct/:id',authenticate,authorizeAdmin,productController.p
 router.put('/unPublishProduct/:id',authenticate,authorizeAdmin,productController.unpublishProduct);
 router.put('/enableQuickDeal/:id',authenticate,authorizeAdmin,productController.enableQuickDeal);
 router.put('/disableQuickDeal/:id',authenticate,authorizeAdmin,productController.disableQuickDeal);
+router.put('/disableRefund/:id',authenticate,authorizeAdmin,productController.disableRefund);
+
+
+
 router.get('/getAllProducts_admin',authenticate,authorizeAdmin, productController.getAllProducts_admin);
 router.delete('/deleteCustomerReview/:id',authenticate,authorizeAdmin,productController.deleteCustomerReview);
 router.post('/replyCustomerReview/:id',authenticate,authorizeAdmin,productController.replyCustomerReview);
