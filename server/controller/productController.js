@@ -61,6 +61,8 @@ const createProduct = asyncHandler(async (req, res) => {
         refund: req.body.refund || true,
         published: req.body.published || false,
         quickDeal: req.body.quickDeal || false,
+        featured: req.body.featured || false,
+
       });
 
       await newProduct.save();
@@ -239,10 +241,9 @@ const updateProduct = asyncHandler(async (req, res) => {
         req.body.published !== undefined
           ? req.body.published
           : product.published;
-      product.quickDeal =
-        req.body.quickDeal !== undefined
-          ? req.body.quickDeal
-          : product.quickDeal;
+      product.quickDeal =req.body.quickDeal !== undefined? req.body.quickDeal: product.quickDeal;
+      product.featured =req.body.featured !== undefined? req.body.featured: product.featured;
+
 
       await product.save();
       res.status(200).json(product);
@@ -404,6 +405,7 @@ const getProductByCategory = asyncHandler(async (req, res) => {
       category: category._id,
       published: true,
     })
+      .sort({ featured: -1 }) 
       .populate("category")
       .populate("subcategory");
 
@@ -418,6 +420,7 @@ const getProductByCategory = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
+
 
 //get quickDeal product
 

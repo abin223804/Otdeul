@@ -78,8 +78,6 @@ const verifyOtp = asyncHandler(async (req, res) => {
     user.isVerified = true;
     user.otp = undefined; // Clear OTP after verification
 
-    // const token = user.generateJWT();
-
     await user.save();
     return res.json({ success: true, message: "OTP verified successfully" });
   } else {
@@ -133,9 +131,6 @@ const logoutCurrentUser = asyncHandler(async (req, res) => {
     console.error(error);
   }
 });
-
-
-
 
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
@@ -269,54 +264,41 @@ const updateUserById = asyncHandler(async (req, res) => {
   }
 });
 
-
-const BlockUser = asyncHandler(async(req, res)=>{
-
-try {
-  const user= await User.findById( req.params.id);
- 
-  if(!user) {
-    return res.status(404).json({message:"User not found"})
-  }
-
-user.isBlocked = true;
-
-await user.save();
-
-res.status(200).json({message:"User blocked  successfully"})
-
-} catch (error) {
-  res.status(500).json({ message: "Server error", error });
-  
-}
-
-})
-
-const unBlockUser = asyncHandler(async(req, res)=>{
-
+const BlockUser = asyncHandler(async (req, res) => {
   try {
-   const user= await User.findById( req.params.id);
-   
-    if(!user) {
-      return res.status(404).json({message:"User not found"})
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  
-  user.isBlocked = false;
-  
-  await user.save();
-  
-  res.status(200).json({message:"User Unblocked  successfully"})
-  
+
+    user.isBlocked = true;
+
+    await user.save();
+
+    res.status(200).json({ message: "User blocked  successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
-    
   }
-  
-  })
+});
 
+const unBlockUser = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
 
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
+    user.isBlocked = false;
 
+    await user.save();
+
+    res.status(200).json({ message: "User Unblocked  successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
 
 export default {
   sendOtp,

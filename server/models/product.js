@@ -38,6 +38,7 @@ const productSchema = new Schema(
 
     refund: { type: Boolean, default: true },
     published: { type: Boolean, default: false } ,
+    featured: { type: Boolean, default: false } ,
     quickDeal: { type: Boolean, default: false } 
 
   },
