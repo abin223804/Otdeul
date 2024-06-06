@@ -21,6 +21,8 @@ router.put('/enableRefund/:id',authenticate,authorizeAdmin,productController.ena
 
 
 router.get('/getAllProducts_admin',authenticate,authorizeAdmin, productController.getAllProducts_admin);
+router.get('/getProductByCategory_admin/:category',authenticate,authorizeAdmin,productController.getProductByCategory);
+router.get('/getProductBySubCategory_admin/:subcategory',authenticate,authorizeAdmin,productController.getProductBySubCategory);
 router.delete('/deleteCustomerReview/:id',authenticate,authorizeAdmin,productController.deleteCustomerReview);
 router.post('/replyCustomerReview/:id',authenticate,authorizeAdmin,productController.replyCustomerReview);
 
