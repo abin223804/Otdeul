@@ -271,6 +271,27 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+//total products
+
+
+const totalProductsCount = asyncHandler(async (req, res) => {
+
+
+  try {
+    const products = await Product.find({});
+
+    res.json(products.length)
+} catch (error) {
+  console.error(error);
+
+}})
+
+
+
+
+
 //manage customer review (delete/reply)
 
 //delete customer review
@@ -490,4 +511,5 @@ export default {
   getQuickDealProduct,
   disableRefund,
   enableRefund,
+  totalProductsCount,
 };
