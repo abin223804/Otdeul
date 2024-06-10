@@ -1,13 +1,13 @@
-import multer from 'multer';
-import path from 'path';
+import multer from "multer";
+import path from "path";
 
 // Set storage engine
 const storage = multer.diskStorage({
-  destination: 'public/uploads/product',
+  destination: "public/uploads/product",
   filename: function (req, file, cb) {
     cb(
       null,
-      file.fieldname + '-' + Date.now() + path.extname(file.originalname)
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
     );
   },
 });
@@ -18,7 +18,7 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 50 }, // 50 MB limit
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
-  }
+  },
 }).any(); // Accept any files for dynamic field handling
 
 // Check file type
@@ -30,7 +30,7 @@ function checkFileType(file, cb) {
   if (mimetype && extname) {
     return cb(null, true);
   } else {
-    cb('Error: Images Only!');
+    cb("Error: Images Only!");
   }
 }
 

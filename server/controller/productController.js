@@ -62,7 +62,6 @@ const createProduct = asyncHandler(async (req, res) => {
         published: req.body.published || false,
         quickDeal: req.body.quickDeal || false,
         featured: req.body.featured || false,
-
       });
 
       await newProduct.save();
@@ -126,7 +125,7 @@ const enableQuickDeal = asyncHandler(async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Product enabled in Quickdeal successfully" });
+      .json({ message: "Product enabled in QuickD8eal successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -241,9 +240,12 @@ const updateProduct = asyncHandler(async (req, res) => {
         req.body.published !== undefined
           ? req.body.published
           : product.published;
-      product.quickDeal =req.body.quickDeal !== undefined? req.body.quickDeal: product.quickDeal;
-      product.featured =req.body.featured !== undefined? req.body.featured: product.featured;
-
+      product.quickDeal =
+        req.body.quickDeal !== undefined
+          ? req.body.quickDeal
+          : product.quickDeal;
+      product.featured =
+        req.body.featured !== undefined ? req.body.featured : product.featured;
 
       await product.save();
       res.status(200).json(product);
@@ -332,61 +334,41 @@ const replyCustomerReview = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 //disable refund
 
-const disableRefund = asyncHandler(async(req,res)=>{
-
-try {
-  const product = await Product.findById(req.params.id)
-
-  if (!product) {
-    return res.status(404).json({ message: "Product not found" });
-  }
-
-  product.refund = false;
-  await product.save();
-
-  res.status(200).json({ message: "Refund disabled successfully" });
-  
-} catch (error) {
-  res.status(500).json({message:"Server error",error})
-}
-
-
-
-})
-
-
-const enableRefund = asyncHandler(async(req,res)=>{
-
+const disableRefund = asyncHandler(async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
-  
+    const product = await Product.findById(req.params.id);
+
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-  
+
+    product.refund = false;
+    await product.save();
+
+    res.status(200).json({ message: "Refund disabled successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+const enableRefund = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
     product.refund = true;
     await product.save();
-  
+
     res.status(200).json({ message: "Refund enabled successfully" });
-    
   } catch (error) {
-    res.status(500).json({message:"Server error",error})
+    res.status(500).json({ message: "Server error", error });
   }
-
-})
-
-
-
-
-
-
-
-
-
+});
 
 // for user 👇
 
@@ -405,7 +387,7 @@ const getProductByCategory = asyncHandler(async (req, res) => {
       category: category._id,
       published: true,
     })
-      .sort({ featured: -1 }) 
+      .sort({ featured: -1 })
       .populate("category")
       .populate("subcategory");
 
@@ -420,7 +402,6 @@ const getProductByCategory = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
-
 
 //get quickDeal product
 
@@ -438,10 +419,6 @@ const getQuickDealProduct = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
-
-
-
-
 
 //product browse by Subcategory
 
@@ -511,6 +488,6 @@ export default {
   enableQuickDeal,
   disableQuickDeal,
   getQuickDealProduct,
-  disableRefund ,
-  enableRefund ,
+  disableRefund,
+  enableRefund,
 };

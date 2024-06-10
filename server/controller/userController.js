@@ -4,23 +4,28 @@ import bcrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
 import otpGenerator from "otp-generator";
 import fast2sms from "fast-two-sms";
+import axios from "axios";
+import dotenv from 'dotenv'
+
+
+
 
 const sendOtp = asyncHandler(async (req, res) => {
   try {
     const { username, email, mobile, password } = req.body;
 
     if (!username || !email || !mobile || !password) {
-      throw new Error("Please fill all the inputs.");
+      return res.status(400).json({ success: false, message: "Please fill all the inputs." });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      throw new Error("User already exists");
+      return res.status(400).json({ success: false, message: "User already exists" });
     }
 
     const userMobileExists = await User.findOne({ mobile });
     if (userMobileExists) {
-      throw new Error("Mobile number already exists");
+      return res.status(400).json({ success: false, message: "Mobile number already exists" });
     }
 
     const otp = otpGenerator.generate(6, {
@@ -29,15 +34,21 @@ const sendOtp = asyncHandler(async (req, res) => {
       specialChars: false,
     });
 
-    console.log(otp);
+    console.log(`Generated OTP: ${otp}`);
 
     try {
       const options = {
         authorization: process.env.FAST2SMS_API_KEY,
         message: `Your OTP for registration is: ${otp}`,
         numbers: [mobile],
+        route: 'p', // or 't' based on your requirement
+        sender_id: process.env.SENDER_ID,
+        entity_id: process.env.ENTITY_ID,
+        language: 'english',
       };
-      await fast2sms.sendMessage(options);
+
+      const response = await fast2sms.sendMessage(options);
+      console.log('OTP sent response:', response);
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -50,17 +61,22 @@ const sendOtp = asyncHandler(async (req, res) => {
         otp,
         isVerified: false,
       });
+
       await newUser.save();
 
       return res.json({ success: true, message: "OTP sent successfully", otp });
     } catch (error) {
       console.error("Error sending OTP:", error);
-      throw new Error("Error sending OTP");
+      return res.status(500).json({ success: false, message: "Error sending OTP" });
     }
   } catch (error) {
     console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 });
+
+
+
 
 const verifyOtp = asyncHandler(async (req, res) => {
   const { mobile, otp } = req.body;
