@@ -34,6 +34,8 @@ router.get("/getUser/:id",authenticate,userController.getUserById)
 router.put("/updateUser/:id",authenticate,userController.updateUserById)
 router.put("/blockUser/:id",authenticate,userController.BlockUser)
 router.put("/unBlockUser/:id",authenticate,userController.unBlockUser)
+router.get("/getUsersCount",authenticate,userController.getUsersCount)
+
 
 
 

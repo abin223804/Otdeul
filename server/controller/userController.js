@@ -10,6 +10,9 @@ import dotenv from 'dotenv'
 
 
 
+//for user 👇
+
+
 const sendOtp = asyncHandler(async (req, res) => {
   try {
     const { username, email, mobile, password } = req.body;
@@ -34,21 +37,33 @@ const sendOtp = asyncHandler(async (req, res) => {
       specialChars: false,
     });
 
-    console.log(`Generated OTP: ${otp}`);
+    console.log(`Generated OTP: ${otp}`); 
+
+
+    if (!process.env.FAST2SMS_API_KEY || !process.env.SENDER_ID ) {
+      console.error('Missing required environment variables');
+      return res.status(500).json({ success: false, message: "Internal server error. Please contact support." });
+    }
 
     try {
       const options = {
-        authorization: process.env.FAST2SMS_API_KEY,
         message: `Your OTP for registration is: ${otp}`,
         numbers: [mobile],
-        route: 'p', // or 't' based on your requirement
+        route: 'dlt',
+        
         sender_id: process.env.SENDER_ID,
-        entity_id: process.env.ENTITY_ID,
+        flash : "0",
         language: 'english',
       };
 
-      const response = await fast2sms.sendMessage(options);
-      console.log('OTP sent response:', response);
+      const response = await axios.get('https://www.fast2sms.com/dev/bulkV2', options, {
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': process.env.FAST2SMS_API_KEY,
+        }
+      });
+
+      console.log('Response from Fast2SMS:', response.data);
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -66,11 +81,17 @@ const sendOtp = asyncHandler(async (req, res) => {
 
       return res.json({ success: true, message: "OTP sent successfully", otp });
     } catch (error) {
-      console.error("Error sending OTP:", error);
+      if (error.response) {
+        console.error('Error response from Fast2SMS:', error.response.status, error.response.data);
+      } else if (error.request) {
+        console.error('No response received from Fast2SMS:', error.request);
+      } else {
+        console.error('Error setting up the request to Fast2SMS:', error.message);
+      }
       return res.status(500).json({ success: false, message: "Error sending OTP" });
     }
   } catch (error) {
-    console.error(error);
+    console.error('Internal Server Error:', error);
     return res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -148,14 +169,7 @@ const logoutCurrentUser = asyncHandler(async (req, res) => {
   }
 });
 
-const getAllUsers = asyncHandler(async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-  }
-});
+
 
 const getCurrentUserProfile = asyncHandler(async (req, res) => {
   try {
@@ -210,6 +224,12 @@ const updateCurrentUserProfile = asyncHandler(async (req, res) => {
     console.error(error.message);
   }
 });
+
+
+
+
+// for admin  
+
 
 const deleteUserById = asyncHandler(async (req, res) => {
   try {
@@ -280,6 +300,32 @@ const updateUserById = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+
+const getAllUsers = asyncHandler(async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+
+const getUsersCount = asyncHandler(async (req, res) => {
+
+  try {
+    const users = await User.find({});
+    res.json(users.length);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+
+
+
 const BlockUser = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -329,4 +375,5 @@ export default {
   updateUserById,
   BlockUser,
   unBlockUser,
+  getUsersCount
 };
