@@ -15,6 +15,7 @@ const router=express();
 router.post('/addCategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addCategory);
 router.put('/updateCategory/:id',authenticate, authorizeAdmin , uploadOptions, categoryController.updateCategory);
 router.delete('/deleteCategory/:id',authenticate, authorizeAdmin , categoryController.deleteCategory);
+router.get('/countCategories',authenticate, authorizeAdmin , categoryController.categoryCount);
 
 
 // for user

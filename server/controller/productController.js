@@ -277,8 +277,6 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
 
 const totalProductsCount = asyncHandler(async (req, res) => {
-
-
   try {
     const products = await Product.find({});
 

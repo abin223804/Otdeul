@@ -319,7 +319,7 @@ const getUsersCount = asyncHandler(async (req, res) => {
     const users = await User.find({});
     res.json(users.length);
   } catch (error) {
-    console.error(error);
+    console.error(error); 
   }
 });
 

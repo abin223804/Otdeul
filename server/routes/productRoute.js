@@ -8,15 +8,17 @@ const router=express();
 
 // for admin
 
-router.post('/addProduct', productController.createProduct);
-router.put('/updateProduct/:id',productController.updateProduct);
-router.delete('/deleteProduct/:id',productController.deleteProduct);
-router.put('/publishProduct/:id',productController.publishProduct);
-router.put('/unPublishProduct/:id',productController.unpublishProduct);
-router.put('/enableQuickDeal/:id',productController.enableQuickDeal);
-router.put('/disableQuickDeal/:id',productController.disableQuickDeal);
-router.put('/disableRefund/:id',productController.disableRefund);
-router.put('/enableRefund/:id',productController.enableRefund);
+router.post('/addProduct',authenticate, authorizeAdmin, productController.createProduct);
+router.put('/updateProduct/:id',authenticate, authorizeAdmin,productController.updateProduct);
+router.delete('/deleteProduct/:id',authenticate, authorizeAdmin,productController.deleteProduct);
+router.put('/publishProduct/:id',authenticate, authorizeAdmin,productController.publishProduct);
+router.get('/totalProductsCount',authenticate, authorizeAdmin,productController.totalProductsCount);
+
+router.put('/unPublishProduct/:id',authenticate, authorizeAdmin,productController.unpublishProduct);
+router.put('/enableQuickDeal/:id',authenticate, authorizeAdmin,productController.enableQuickDeal);
+router.put('/disableQuickDeal/:id',authenticate, authorizeAdmin,productController.disableQuickDeal);
+router.put('/disableRefund/:id',authenticate, authorizeAdmin,productController.disableRefund);
+router.put('/enableRefund/:id',authenticate, authorizeAdmin,productController.enableRefund);
 
 
 

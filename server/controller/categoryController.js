@@ -150,6 +150,21 @@ const readCategory = async (req, res) => {
   }
 };
 
+//categoryCount
+
+const categoryCount = async (req, res) => {
+  try {
+    const count = await Category.countDocuments();
+    res.json(count);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(error.message);
+  }
+};
+
+
+
+
 // Subcategory controller functions
 
 const addSubcategory = async (req, res) => {
@@ -309,4 +324,5 @@ export default {
   deleteSubcategory,
   listSubcategory,
   readSubCategory,
+  categoryCount,
 };
