@@ -72,6 +72,10 @@ const createProduct = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+
+
 //publish product
 
 const publishProduct = asyncHandler(async (req, res) => {
