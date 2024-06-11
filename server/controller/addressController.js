@@ -1,5 +1,5 @@
-import { Address } from "../models/address";
-import asyncHandler from "../middlewares/asyncHandler";
+import { Address } from "../models/address.js";
+import asyncHandler from "../middlewares/asyncHandler.js";
 
 const createAddress = asyncHandler(async (req, res) => {
   try {

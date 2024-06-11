@@ -14,6 +14,7 @@ import connectDB from "./config/db.js";
 import userRoute from "./routes/userRoute.js";
 import categoryRoute from "./routes/categoryRoute.js";
 import productRoute from "./routes/productRoute.js";
+import addressRoute from "./routes/addressRoute.js";
 
 dotenv.config();
 
@@ -35,6 +36,8 @@ app.use(morgan("dev"));
 app.use("/user", userRoute);
 app.use("/category", categoryRoute);
 app.use("/product", productRoute);
+app.use("/address",addressRoute);
+
 
 const PORT = process.env.PORT || 8000;
 
