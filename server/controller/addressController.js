@@ -50,8 +50,42 @@ const getSelectedAddress = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+const updateAddress = asyncHandler(async(req,res)=>{
+
+try {
+
+    const updateAddress = await Address.findOneAndUpdate(
+
+        {_id: req.params.id ,user: req.user._id},req.body,
+
+        {new:true}
+    );
+
+    if (!updateAddress) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+    res.status(200).json(updateAddress);
+  
+    
+} catch (error) {
+    res.status(500).json({message: error.message});
+}
+})
+
+
+
+
+
+
+
+
+
+
 export default {
   createAddress,
   getAllAddress,
   getSelectedAddress,
+  updateAddress ,
 };
