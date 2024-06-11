@@ -76,6 +76,24 @@ try {
 
 
 
+const deleteAddress = asyncHandler(async(req,res)=>{
+
+
+try {
+
+    const deleteAddress = await Address.findOneAndDelete({_id: req.params.id})
+    
+if(!deleteAddress){
+
+    return res.status(404).json({ message: "Address not found" });
+}
+res.status(200).json({message: "Address deleted successfully" });
+
+} catch (error) {
+    res.status(500).json({message: error.message});
+}
+
+})
 
 
 
@@ -88,4 +106,5 @@ export default {
   getAllAddress,
   getSelectedAddress,
   updateAddress ,
+  deleteAddress 
 };
