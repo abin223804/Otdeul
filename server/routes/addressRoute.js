@@ -8,6 +8,7 @@ const router=express();
 //for user
 
 router.post('/addAddress',authenticate,addressController.createAddress);
+router.get('/getAllAddress',authenticate,addressController.getAllAddress);
 
 
 
