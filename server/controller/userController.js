@@ -292,19 +292,23 @@ const updateCurrentUserProfile = asyncHandler(async (req, res) => {
 
 const resetPassword = asyncHandler(async (req, res) => {
   try {
-    const { password, confirmPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
 
     const email = req.user.email;
+
+    console.log(email);
 
     if (!email) {
       return res.status(401).send("Unauthenticated");
     }
 
-    if (!password) {
+    if (!oldPassword) {
       return res.status(400).json({ error: "You must enter a password" });
     }
 
     const existingUser = await User.findOne({ email });
+
+    console.log("Existinguser",existingUser);
 
     if (!existingUser) {
       return res
@@ -312,15 +316,41 @@ const resetPassword = asyncHandler(async (req, res) => {
         .json({ error: "That email address is already in use" });
     }
 
-    const isMatch = await bcrypt.compare(password, existingUser.password);
+    const isMatch = await bcrypt.compare(oldPassword, existingUser.password);
 
     if (!isMatch) {
       return res
         .status(400)
         .json({ error: "Please enter your your correct old password" });
     }
-  } catch (error) {}
+
+const salt = await bcrypt.genSalt(10)
+const hash = await bcrypt.hash(newPassword,salt);
+existingUser.password=hash;
+existingUser.save();
+
+res.status(200).json({
+  success:true,
+  message:'Password changed successfully. Please login with your new password'
+})
+
+  } catch (error) {
+  res.status(400).json({
+    error:'Your request could not be processed.please try again'
+  })
+  }
 });
+
+
+//forgot password
+
+
+
+
+
+
+
+
 
 // for admin
 
@@ -461,4 +491,5 @@ export default {
   BlockUser,
   unBlockUser,
   getUsersCount,
+  resetPassword ,
 };

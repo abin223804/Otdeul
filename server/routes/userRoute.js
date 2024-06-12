@@ -11,13 +11,15 @@ const router=express();
 
 router.post("/sendOtp",userController.sendOtp)
 router.post("/verifyOtp",userController.verifyOtp)
+router.post("/signIn",userController.loginUser)
+router.post("/signOut",userController.logoutCurrentUser)
+router.put("/resetPassword", authenticate,userController.resetPassword)
 
 router.get("/authUser",authenticate)
 router.get("/authUser",authorizeAdmin)
 router.get("/allUsers",userController.getAllUsers)
 
-router.post("/signIn",userController.loginUser)
-router.post("/signOut",userController.logoutCurrentUser)
+
 
 router.get("/getUserProfile",authenticate,userController.getCurrentUserProfile)
 router.put("/updateCurrentUserProfile",authenticate,userController.updateCurrentUserProfile)
