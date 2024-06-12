@@ -5,30 +5,58 @@ import createToken from "../utils/createToken.js";
 import otpGenerator from "otp-generator";
 import fast2sms from "fast-two-sms";
 import axios from "axios";
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
+import * as FormData from 'form-data'; // Import FormData for specifying form data in HTTP requests
+import Mailgun from 'mailgun.js';
+
+// Initialize Mailgun with your configuration options
+const mailgun = new Mailgun({
+  FormData: FormData, 
+  username:'api',
+  key: process.env.MAILGUN_API_KEY ,
+  proxy: {
+    protocol: 'https',
+    host: '127.0.0.1',
+    port: 9000,
+    auth: {
+     username:"api",
+     password:"121212"
+    }
+  },
+});
+
+
+// const mg = mailgun.client();
 
 
 
 
-//for user 👇
+
+
 
 
 const sendOtp = asyncHandler(async (req, res) => {
   try {
-    const { username, email, mobile, password } = req.body;
+    const { username, email, mobile, password, preference } = req.body;
 
-    if (!username || !email || !mobile || !password) {
-      return res.status(400).json({ success: false, message: "Please fill all the inputs." });
+    if (!username || !email || !mobile || !password || !preference) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Please fill all the inputs." });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ success: false, message: "User already exists" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
     }
 
     const userMobileExists = await User.findOne({ mobile });
     if (userMobileExists) {
-      return res.status(400).json({ success: false, message: "Mobile number already exists" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Mobile number already exists" });
     }
 
     const otp = otpGenerator.generate(6, {
@@ -37,33 +65,69 @@ const sendOtp = asyncHandler(async (req, res) => {
       specialChars: false,
     });
 
-    console.log(`Generated OTP: ${otp}`); 
+    console.log(`Generated OTP: ${otp}`);
 
+    if (!process.env.FAST2SMS_API_KEY || !process.env.SENDER_ID) {
+      console.error("Missing required environment variables for Fast2SMS");
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Internal server error. Please contact support.",
+        });
+    }
 
-    if (!process.env.FAST2SMS_API_KEY || !process.env.SENDER_ID ) {
-      console.error('Missing required environment variables');
-      return res.status(500).json({ success: false, message: "Internal server error. Please contact support." });
+    if (
+      !process.env.MAILGUN_API_KEY||
+      !process.env.MAILGUN_DOMAIN ||
+      !process.env.MAILGUN_EMAIL_SENDER
+    ) {
+      console.error("Missing required environment variables for Mailgun");
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Internal server error. Please contact support.",
+        });
     }
 
     try {
-      const options = {
-        message: `Your OTP for registration is: ${otp}`,
-        numbers: [mobile],
-        route: 'dlt',
-        
-        sender_id: process.env.SENDER_ID,
-        flash : "0",
-        language: 'english',
-      };
+      if (preference === "mobile") {
+        const options = {
+          message: `Your OTP for registration is: ${otp}`,
+          numbers: [mobile],
+          route: "dlt",
+          sender_id: process.env.SENDER_ID,
+          flash: "0",
+          language: "english",
+        };
 
-      const response = await axios.get('https://www.fast2sms.com/dev/bulkV2', options, {
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': process.env.FAST2SMS_API_KEY,
-        }
-      });
+        const response = await axios.post(
+          "https://www.fast2sms.com/dev/bulkV2",
+          options,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: process.env.FAST2SMS_API_KEY,
+            },
+          }
+        );
 
-      console.log('Response from Fast2SMS:', response.data);
+        console.log("Response from Fast2SMS:", response.data);
+      } else if (preference === "email") {
+        const emailData = {
+          from: `MERN Store! <${process.env.MAILGUN_EMAIL_SENDER}>`,
+          to: email,
+          subject: "Your OTP Code",
+          text: `Your OTP for registration is: ${otp}`,
+        };
+
+        // const message = await mg.messages.create(
+        //   process.env.MAILGUN_DOMAIN,
+        //   emailData
+        // );
+        // console.log("Email sent via Mailgun:", message);
+      }
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -82,22 +146,25 @@ const sendOtp = asyncHandler(async (req, res) => {
       return res.json({ success: true, message: "OTP sent successfully", otp });
     } catch (error) {
       if (error.response) {
-        console.error('Error response from Fast2SMS:', error.response.status, error.response.data);
+        console.error(
+          "Error response:",
+          error.response.status,
+          error.response.data
+        );
       } else if (error.request) {
-        console.error('No response received from Fast2SMS:', error.request);
+        console.error("No response received:", error.request);
       } else {
-        console.error('Error setting up the request to Fast2SMS:', error.message);
+        console.error("Error setting up the request:", error.message);
       }
-      return res.status(500).json({ success: false, message: "Error sending OTP" });
+      return res
+        .status(500)
+        .json({ success: false, message: "Error sending OTP" });
     }
   } catch (error) {
-    console.error('Internal Server Error:', error);
+    console.error("Internal Server Error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 });
-
-
-
 
 const verifyOtp = asyncHandler(async (req, res) => {
   const { mobile, otp } = req.body;
@@ -169,8 +236,6 @@ const logoutCurrentUser = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 const getCurrentUserProfile = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -225,11 +290,39 @@ const updateCurrentUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+const resetPassword = asyncHandler(async (req, res) => {
+  try {
+    const { password, confirmPassword } = req.body;
 
+    const email = req.user.email;
 
+    if (!email) {
+      return res.status(401).send("Unauthenticated");
+    }
 
-// for admin  
+    if (!password) {
+      return res.status(400).json({ error: "You must enter a password" });
+    }
 
+    const existingUser = await User.findOne({ email });
+
+    if (!existingUser) {
+      return res
+        .status(400)
+        .json({ error: "That email address is already in use" });
+    }
+
+    const isMatch = await bcrypt.compare(password, existingUser.password);
+
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ error: "Please enter your your correct old password" });
+    }
+  } catch (error) {}
+});
+
+// for admin
 
 const deleteUserById = asyncHandler(async (req, res) => {
   try {
@@ -300,9 +393,6 @@ const updateUserById = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
     const users = await User.find({});
@@ -312,19 +402,14 @@ const getAllUsers = asyncHandler(async (req, res) => {
   }
 });
 
-
 const getUsersCount = asyncHandler(async (req, res) => {
-
   try {
     const users = await User.find({});
     res.json(users.length);
   } catch (error) {
-    console.error(error); 
+    console.error(error);
   }
 });
-
-
-
 
 const BlockUser = asyncHandler(async (req, res) => {
   try {
@@ -375,5 +460,5 @@ export default {
   updateUserById,
   BlockUser,
   unBlockUser,
-  getUsersCount
+  getUsersCount,
 };

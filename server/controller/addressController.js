@@ -5,7 +5,7 @@ const createAddress = asyncHandler(async (req, res) => {
   try {
     const { address, city, state, country, zipCode, isDefault } = req.body;
 
-    const newAddress = new Address({
+    const newAddress = new Address({ 
       user: req.user._id,
       address,
       city,
@@ -25,17 +25,14 @@ const createAddress = asyncHandler(async (req, res) => {
 
 const getAllAddress = asyncHandler(async (req, res) => {
   try {
-
     const userId = req.user._id;
-    const allAddress = await Address.find({user:userId}).populate("user");
+    const allAddress = await Address.find({ user: userId }).populate("user");
 
     res.status(200).json(allAddress);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
-
-
 
 const getSelectedAddress = asyncHandler(async (req, res) => {
   try {
@@ -50,61 +47,43 @@ const getSelectedAddress = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-const updateAddress = asyncHandler(async(req,res)=>{
-
-try {
-
+const updateAddress = asyncHandler(async (req, res) => {
+  try {
     const updateAddress = await Address.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
+      req.body,
 
-        {_id: req.params.id ,user: req.user._id},req.body,
-
-        {new:true}
+      { new: true }
     );
 
     if (!updateAddress) {
       return res.status(404).json({ message: "Address not found" });
     }
     res.status(200).json(updateAddress);
-  
-    
-} catch (error) {
-    res.status(500).json({message: error.message});
-}
-})
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
+const deleteAddress = asyncHandler(async (req, res) => {
+  try {
+    const deleteAddress = await Address.findOneAndDelete({
+      _id: req.params.id,
+    });
 
-
-const deleteAddress = asyncHandler(async(req,res)=>{
-
-
-try {
-
-    const deleteAddress = await Address.findOneAndDelete({_id: req.params.id})
-    
-if(!deleteAddress){
-
-    return res.status(404).json({ message: "Address not found" });
-}
-res.status(200).json({message: "Address deleted successfully" });
-
-} catch (error) {
-    res.status(500).json({message: error.message});
-}
-
-})
-
-
-
-
-
-
+    if (!deleteAddress) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+    res.status(200).json({ message: "Address deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 export default {
   createAddress,
   getAllAddress,
   getSelectedAddress,
-  updateAddress ,
-  deleteAddress 
+  updateAddress,
+  deleteAddress,
 };
