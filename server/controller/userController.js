@@ -6,32 +6,19 @@ import otpGenerator from "otp-generator";
 import fast2sms from "fast-two-sms";
 import axios from "axios";
 import dotenv from "dotenv";
-import * as FormData from 'form-data'; // Import FormData for specifying form data in HTTP requests
+dotenv.config();
+
+
+
+import FormData from 'form-data';
 import Mailgun from 'mailgun.js';
+const mailgun = new Mailgun(FormData);
 
-// Initialize Mailgun with your configuration options
-const mailgun = new Mailgun({
-  FormData: FormData, 
-  username:'api',
-  key: process.env.MAILGUN_API_KEY ,
-  proxy: {
-    protocol: 'https',
-    host: '127.0.0.1',
-    port: 9000,
-    auth: {
-     username:"api",
-     password:"121212"
-    }
-  },
-});
+const apiKey= process.env.MAILGUN_API_KEY  
 
+console.log("apikey",apiKey);
 
-// const mg = mailgun.client();
-
-
-
-
-
+const mg = mailgun.client({username: 'api', key: apiKey|| 'key-yourkeyhere'});
 
 
 
@@ -116,17 +103,17 @@ const sendOtp = asyncHandler(async (req, res) => {
         console.log("Response from Fast2SMS:", response.data);
       } else if (preference === "email") {
         const emailData = {
-          from: `MERN Store! <${process.env.MAILGUN_EMAIL_SENDER}>`,
+          from: `Otdeul <${process.env.MAILGUN_EMAIL_SENDER}>`,
           to: email,
           subject: "Your OTP Code",
           text: `Your OTP for registration is: ${otp}`,
         };
 
-        // const message = await mg.messages.create(
-        //   process.env.MAILGUN_DOMAIN,
-        //   emailData
-        // );
-        // console.log("Email sent via Mailgun:", message);
+        const message = await mg.messages.create(
+          process.env.MAILGUN_DOMAIN,
+          emailData
+        );
+        console.log("Email sent via Mailgun:", message);
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -343,6 +330,9 @@ res.status(200).json({
 
 
 //forgot password
+
+
+
 
 
 
