@@ -6,6 +6,7 @@ import otpGenerator from "otp-generator";
 import fast2sms from "fast-two-sms";
 import axios from "axios";
 import dotenv from "dotenv";
+import crypto from "crypto";
 dotenv.config();
 
 
@@ -15,6 +16,14 @@ import Mailgun from 'mailgun.js';
 const mailgun = new Mailgun(FormData);
 
 const apiKey= process.env.MAILGUN_API_KEY  
+
+const fas2smsApi_key = process.env.FAST2SMS_API_KEY
+const fas2smsEntity_Id = process.env.ENTITY_ID 
+
+
+console.log("fast2smsApi_key",fas2smsApi_key); 
+console.log("entityid",fas2smsEntity_Id); 
+
 
 console.log("apikey",apiKey);
 
@@ -85,29 +94,42 @@ const sendOtp = asyncHandler(async (req, res) => {
           numbers: [mobile],
           route: "dlt",
           sender_id: process.env.SENDER_ID,
+          entity_id: process.env.ENTITY_ID,
           flash: "0",
           language: "english",
         };
 
+        console.log("Sending request to Fast2SMS with options:", options);
+
         const response = await axios.post(
-          "https://www.fast2sms.com/dev/bulkV2",
+          "https://www.fast2sms.com/dev/bulkV2",  
           options,
           {
             headers: {
               "Content-Type": "application/json",
-              authorization: process.env.FAST2SMS_API_KEY,
+              authorization: process.env.FAST2SMS_API_KEY, 
             },
+            
           }
         );
 
         console.log("Response from Fast2SMS:", response.data);
+    
+        if (response.data.return) {
+          console.log("Response from Fast2SMS:", response.data);
+        } else {
+          console.error("Error from Fast2SMS:", response.data);
+          return res.status(500).json({ success: false, message: response.data.message || "Error sending OTP via Fast2SMS" });
+        }
+
       } else if (preference === "email") {
         const emailData = {
           from: `Otdeul <${process.env.MAILGUN_EMAIL_SENDER}>`,
           to: email,
           subject: "Your OTP Code",
-          text: `Your OTP for registration is: ${otp}`,
-        };
+          text: `Your OTP for registration is: ${otp}`, 
+        }; 
+
 
         const message = await mg.messages.create(
           process.env.MAILGUN_DOMAIN,
@@ -154,12 +176,13 @@ const sendOtp = asyncHandler(async (req, res) => {
 });
 
 const verifyOtp = asyncHandler(async (req, res) => {
-  const { mobile, otp } = req.body;
-  if (!mobile || !otp) {
+
+  const { otp ,email} = req.body;
+  if (!email || !otp) {
     throw new Error("Mobile number and OTP are required");
   }
 
-  const user = await User.findOne({ mobile });
+  const user = await User.findOne({ email });
 
   if (!user) {
     throw new Error("Invalid mobile number");
@@ -210,6 +233,58 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "You must enter an email address" });
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (!existingUser) {
+      return res.status(400).json({ error: "No account with that email address exists." });
+    }
+
+    // Generate OTP (One-Time Password)
+    const otp = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit OTP
+
+    // Set OTP and expiration in the user document
+    existingUser.resetToken = otp.toString();
+    existingUser.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
+
+    await existingUser.save();
+
+    // Send OTP via email (replace this with your email sending logic)
+    await mailgun.sendEmail(
+      existingUser.email,
+      'Password Reset OTP',
+      `Your OTP for password reset is: ${otp}`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Please check your email for the OTP to reset your password."
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Your request could not be processed. Please try again.'
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
 const logoutCurrentUser = asyncHandler(async (req, res) => {
   try {
     res.cookie("jwt", "", {
@@ -222,6 +297,8 @@ const logoutCurrentUser = asyncHandler(async (req, res) => {
     console.error(error);
   }
 });
+
+
 
 const getCurrentUserProfile = asyncHandler(async (req, res) => {
   try {
@@ -471,6 +548,7 @@ export default {
   sendOtp,
   verifyOtp,
   loginUser,
+  forgotPassword,
   logoutCurrentUser,
   getAllUsers,
   getCurrentUserProfile,
