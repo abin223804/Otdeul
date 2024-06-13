@@ -12,7 +12,11 @@ const router=express();
 router.post("/sendOtp",userController.sendOtp)
 router.post("/verifyOtp",userController.verifyOtp)
 router.post("/signIn",userController.loginUser)
-router.post("/forgotPassword",userController.forgotPassword)
+
+router.post("/requestforgotPassword",userController.requestforgotPassword)
+router.post("/confirmforgotPassword",userController.verifyOtpAndSetNewPassword);
+
+
 router.post("/signOut",userController.logoutCurrentUser)
 router.put("/resetPassword", authenticate,userController.resetPassword)
 

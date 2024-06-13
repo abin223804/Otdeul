@@ -9,6 +9,8 @@ const router=express();
 // for admin
 
 router.post('/addProduct',authenticate, authorizeAdmin, productController.createProduct);
+router.post('/addColor',authenticate, authorizeAdmin, productController.addColor);
+
 router.put('/updateProduct/:id',authenticate, authorizeAdmin,productController.updateProduct);
 router.delete('/deleteProduct/:id',authenticate, authorizeAdmin,productController.deleteProduct);
 router.put('/publishProduct/:id',authenticate, authorizeAdmin,productController.publishProduct);

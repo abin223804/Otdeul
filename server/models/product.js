@@ -1,13 +1,13 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
 const reviewSchema = new Schema({
   review: { type: String, required: false },
-  reply: { type: String } ,
+  reply: { type: String },
   image: { type: String, required: false },
   rating: { type: Number, required: false },
-  user: { type: Schema.Types.ObjectId, ref: "User" }, // Assuming 'User' is the referenced model
+  user: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
 const sizeSchema = new Schema({
@@ -17,7 +17,7 @@ const sizeSchema = new Schema({
 });
 
 const variationSchema = new Schema({
-  color: { type: String, required: false },
+  color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
   sizes: [sizeSchema],
 });
 
@@ -26,21 +26,15 @@ const productSchema = new Schema(
     productName: { type: String, required: true },
     variations: [variationSchema],
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-    subcategory: {
-      type: Schema.Types.ObjectId,
-      ref: "Subcategory",
-      required: true,
-    },
+    subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
     description: { type: String, required: true },
     rating: { type: Number, default: 0 },
     reviews: [reviewSchema],
     numReviews: { type: Number, default: 0 },
-
     refund: { type: Boolean, default: true },
-    published: { type: Boolean, default: false } ,
-    featured: { type: Boolean, default: false } ,
-    quickDeal: { type: Boolean, default: false } 
-
+    published: { type: Boolean, default: false },
+    featured: { type: Boolean, default: false },
+    quickDeal: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
