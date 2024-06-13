@@ -81,18 +81,15 @@ const createProduct = asyncHandler(async (req, res) => {
 const addColor = asyncHandler(async (req, res) => {
   const { colorName, colorCode } = req.body;
 
-  // Validate input
   if (!colorName || !colorCode) {
     return res.status(400).json({ error: "Color name and color code are required." });
   }
 
-  // Create a new color
   const newColor = new Color({
     colorName,
     colorCode
   });
 
-  // Save the new color to the database
   await newColor.save();
 
   res.status(201).json({
@@ -185,6 +182,14 @@ const disableQuickDeal = asyncHandler(async (req, res) => {
 });
 
 // refund/replace/return(doubt)
+
+
+
+
+
+
+
+
 
 // get or view products(all)
 

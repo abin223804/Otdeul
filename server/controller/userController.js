@@ -240,7 +240,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 
-const requestforgotPassword = asyncHandler(async (req, res) => {
+const requestForgotPassword = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -255,11 +255,13 @@ const requestforgotPassword = asyncHandler(async (req, res) => {
     }
 
     // Generate OTP (One-Time Password)
-    const otp = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit OTP
+    const otpp = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit OTP
 
     // Set OTP and expiration in the user document
-    existingUser.resetToken = otp.toString();
+    existingUser.resetToken = otpp.toString();
     existingUser.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
+
+    console.log(`Generated OTP for ${email}: ${otpp}`);  // Log OTP for debugging
 
     await existingUser.save();
 
@@ -267,7 +269,7 @@ const requestforgotPassword = asyncHandler(async (req, res) => {
       from: `Otdeul <${process.env.MAILGUN_EMAIL_SENDER}>`,
       to: email,
       subject: "Your OTP Code",
-      text: `Your OTP for Password reset is: ${otp}`, 
+      text: `Your OTP for password reset is: ${otpp}`, 
     };
 
     const message = await mg.messages.create(
@@ -275,6 +277,7 @@ const requestforgotPassword = asyncHandler(async (req, res) => {
       emailData
     );
     console.log("Email sent via Mailgun:", message);
+
     res.status(200).json({
       success: true,
       message: "Please check your email for the OTP to reset your password."
@@ -289,11 +292,11 @@ const requestforgotPassword = asyncHandler(async (req, res) => {
 });
 
 
-const verifyOtpAndSetNewPassword = asyncHandler(async (req, res) => {
+const verifyOtpAndResetPassword = asyncHandler(async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
 
-    if (!email || !otp || !newPassword) {
+    if (!email || otp === undefined || !newPassword) {
       return res.status(400).json({ error: "Email, OTP, and new password are required." });
     }
 
@@ -303,15 +306,24 @@ const verifyOtpAndSetNewPassword = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: "No account with that email address exists." });
     }
 
-    // Verify OTP
-    // if (existingUser.resetToken !== otp || existingUser.resetPasswordExpires < Date.now()) {
-    //   return res.status(400).json({ error: "Invalid or expired OTP. Please request a new one." });
-    // }
+    console.log(`Stored OTP: ${existingUser.resetToken}`);
+    console.log(`Provided OTP: ${otp}`);
 
-    // Update user's password
-    existingUser.password = newPassword; // Assuming you have password hashing and validation in place
-    // existingUser.resetToken = undefined;
-    // existingUser.resetPasswordExpires = undefined;
+    if (existingUser.resetToken !== otp) {
+      return res.status(400).json({ error: "Invalid OTP." });
+    }
+
+    if (existingUser.resetPasswordExpires < Date.now()) {
+      return res.status(400).json({ error: "OTP has expired." });
+    }
+
+    // Hash the new password before saving
+    const salt = await bcrypt.genSalt(10);
+    existingUser.password = await bcrypt.hash(newPassword, salt);
+    
+    // Clear the reset token and expiry
+    existingUser.resetToken = undefined;
+    existingUser.resetPasswordExpires = undefined;
 
     await existingUser.save();
 
@@ -599,8 +611,8 @@ export default {
   sendOtp,
   verifyOtp,
   loginUser,
-  requestforgotPassword,
-  verifyOtpAndSetNewPassword,
+  requestForgotPassword ,
+  verifyOtpAndResetPassword,
   logoutCurrentUser,
   getAllUsers,
   getCurrentUserProfile,

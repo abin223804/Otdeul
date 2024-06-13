@@ -34,14 +34,17 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    resetToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
   {
-    timestamps: true,
+    timestamps: true, // Adds createdAt and updatedAt timestamps
   }
 );
-
-
-
 
 // Method to generate JWT
 userSchema.methods.generateJWT = function () {
@@ -56,6 +59,6 @@ userSchema.methods.generateJWT = function () {
   return token;
 };
 
-const userModel = mongoose.model("User", userSchema);
+const userModel = mongoose.model("User", userSchema); // Create User model
 
-export default userModel;
+export default userModel; // Export User model
