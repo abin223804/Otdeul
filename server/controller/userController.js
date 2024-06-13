@@ -254,10 +254,12 @@ const requestForgotPassword = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: "No account with that email address exists." });
     }
 
-    // Generate OTP (One-Time Password)
-    const otpp = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit OTP
+    const otpp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
 
-    // Set OTP and expiration in the user document
     existingUser.resetToken = otpp
     existingUser.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
 
