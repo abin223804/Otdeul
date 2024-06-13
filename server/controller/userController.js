@@ -258,7 +258,7 @@ const requestForgotPassword = asyncHandler(async (req, res) => {
     const otpp = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit OTP
 
     // Set OTP and expiration in the user document
-    existingUser.resetToken = otpp.toString();
+    existingUser.resetToken = otpp
     existingUser.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
 
     console.log(`Generated OTP for ${email}: ${otpp}`);  // Log OTP for debugging
