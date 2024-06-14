@@ -323,7 +323,6 @@ const verifyOtpAndResetPassword = asyncHandler(async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     existingUser.password = await bcrypt.hash(newPassword, salt);
     
-    // Clear the reset token and expiry
     existingUser.resetToken = undefined;
     existingUser.resetPasswordExpires = undefined;
 
@@ -469,17 +468,6 @@ res.status(200).json({
   })
   }
 });
-
-
-//forgot password
-
-
-
-
-
-
-
-
 
 
 

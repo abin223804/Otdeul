@@ -1,5 +1,8 @@
-import mongoose from "mongoose";
-import jwt from "jsonwebtoken"; // Import jwt for generating tokens
+
+
+
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken'; // Import jwt for generating tokens
 
 const userSchema = new mongoose.Schema(
   {
@@ -15,11 +18,11 @@ const userSchema = new mongoose.Schema(
     mobile: {
       type: String,
       unique: true,
-      required: true,
+      required: false, // Not required for OAuth
     },
     password: {
       type: String,
-      required: true,
+      required: false, // Not required for OAuth
     },
     isAdmin: {
       type: Boolean,

@@ -4,6 +4,10 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
+import passport from "passport";
+import session from 'express-session';
+import './config/auth.js'
+
 
 const app = express();
 
@@ -32,6 +36,16 @@ app.use("/uploads", express.static("uploads"));
 app.use(cookieParser());
 app.use(helmet());
 app.use(morgan("dev"));
+
+app.use(session({ secret: 'your_secret_key', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
+
+
+
 
 app.use("/user", userRoute);
 app.use("/category", categoryRoute);

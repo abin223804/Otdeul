@@ -30,6 +30,31 @@ router.get("/getUserProfile",authenticate,userController.getCurrentUserProfile)
 router.put("/updateCurrentUserProfile",authenticate,userController.updateCurrentUserProfile)
 
 
+// Google Auth Routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
+// Facebook Auth Routes
+router.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+
+router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
+
+
+
+
+
+
+
 
 
 // ADMIN ROUTES 👇
