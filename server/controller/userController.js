@@ -351,16 +351,23 @@ const verifyOtpAndResetPassword = asyncHandler(async (req, res) => {
 
 const logoutCurrentUser = asyncHandler(async (req, res) => {
   try {
-    res.cookie("jwt", "", {
-      httpOnly: true,
-      expires: new Date(0),
-    });
+    req.session.destroy(err => {
+      if (err) {
+        return res.status(500).json({ message: "Failed to log out" });
+      }
 
-    res.status(200).json({ message: "Logged out successfully" });
+      res.clearCookie('jwt');
+
+      res.clearCookie('connect.sid'); 
+
+      res.status(200).json({ message: "Logged out successfully" });
+    });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "An error occurred during logout" });
   }
 });
+
 
 
 
