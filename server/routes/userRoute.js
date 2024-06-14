@@ -60,13 +60,13 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', { failur
 // ADMIN ROUTES 👇
 
 
-
-router.delete("/deleteUser/:id",authenticate,userController.deleteUserById)
-router.get("/getUser/:id",authenticate,userController.getUserById)
-router.put("/updateUser/:id",authenticate,userController.updateUserById)
-router.put("/blockUser/:id",authenticate,userController.BlockUser)
-router.put("/unBlockUser/:id",authenticate,userController.unBlockUser)
-router.get("/getUsersCount",authenticate,userController.getUsersCount)
+router.get("/admin",authenticate,authorizeAdmin,userController.getAdminData)
+router.delete("/deleteUser/:id",authenticate,authorizeAdmin ,userController.deleteUserById)
+router.get("/getUser/:id",authenticate,authorizeAdmin ,userController.getUserById)
+router.put("/updateUser/:id",authenticate,authorizeAdmin ,userController.updateUserById)
+router.put("/blockUser/:id",authenticate,authorizeAdmin ,userController.BlockUser)
+router.put("/unBlockUser/:id",authenticate,authorizeAdmin ,userController.unBlockUser)
+router.get("/getUsersCount",authenticate,authorizeAdmin ,userController.getUsersCount)
 
 
 

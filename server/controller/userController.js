@@ -240,6 +240,39 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 
+
+const getAdminData = asyncHandler(async(req,res)=>{
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).send('Unauthorized');
+  }
+
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const admin = await User.findById(decoded.adminId);
+    if (!admin) {
+      return res.status(404).send('Admin not found');
+    }
+
+    res.status(200).send(admin);
+
+    
+  } catch (error) {
+    res.status(401).send('Unauthorized');
+
+  }
+
+
+})
+
+
+
+
+
+
+
 const requestForgotPassword = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
@@ -621,4 +654,5 @@ export default {
   unBlockUser,
   getUsersCount,
   resetPassword ,
+  getAdminData
 };
