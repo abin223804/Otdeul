@@ -1,13 +1,21 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
-import userModel from './models/user'; // Adjust the path as necessary
+import userModel from '../models/userModel.js'; // Adjust the path as necessary
+
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 passport.use(new GoogleStrategy({
+
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: 'http://localhost:3000/auth/google/callback'
-}, async (accessToken, refreshToken, profile, done) => {
+},
+    
+
+async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await userModel.findOne({ email: profile.emails[0].value });
     if (!user) {
