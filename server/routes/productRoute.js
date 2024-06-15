@@ -38,6 +38,7 @@ router.post('/replyCustomerReview/:id',authenticate, authorizeAdmin,productContr
 
 router.get('/searchProducts',authenticate, productController.searchProducts);
 router.get('/fetchNewProducts',authenticate,productController.fetchNewProducts);
+router.get('/filterProducts',authenticate,productController.filterProducts);
 
 
 router.get('/getProductByCategory/:category',authenticate, productController.getProductByCategory);

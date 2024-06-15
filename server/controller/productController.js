@@ -590,6 +590,35 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
 
 
 
+const filterProducts = asyncHandler(async(req,res)=>{
+  try {
+    const { priceRange, size, color } = req.query;
+    let filters = {};
+
+    if (priceRange) {
+      const [minPrice, maxPrice] = priceRange.split('-');
+      filters.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
+    }
+
+    if (size) {
+      filters['variations.sizes.size'] = size; 
+    }
+
+    if (color) {
+      filters['variations.color'] = color; 
+    }
+
+    const filteredProducts = await Product.find(filters);
+    res.json(filteredProducts);
+  } catch (error) {
+    console.error('Error filtering products:', error);
+    res.status(500).json({ error: 'Server Error' });
+  }
+
+}) 
+
+
+
 
 
 
@@ -626,4 +655,5 @@ export default {
   disableRefund,
   enableRefund,
   totalProductsCount,
+  filterProducts
 };
