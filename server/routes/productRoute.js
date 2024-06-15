@@ -25,24 +25,26 @@ router.put('/enableRefund/:id',authenticate, authorizeAdmin,productController.en
 
 
 
-router.get('/getAllProducts_admin', productController.getAllProducts_admin);
-router.get('/getProductByCategory_admin/:category',productController.getProductByCategory);
-router.get('/getProductBySubCategory_admin/:subcategory',productController.getProductBySubCategory);
-router.delete('/deleteCustomerReview/:id',productController.deleteCustomerReview);
-router.post('/replyCustomerReview/:id',productController.replyCustomerReview);
+router.get('/getAllProducts_admin',authenticate, authorizeAdmin, productController.getAllProducts_admin);
+router.get('/getProductByCategory_admin/:category',authenticate, authorizeAdmin,productController.getProductByCategory);
+router.get('/getProductBySubCategory_admin/:subcategory',authenticate, authorizeAdmin,productController.getProductBySubCategory);
+router.delete('/deleteCustomerReview/:id',authenticate, authorizeAdmin,productController.deleteCustomerReview);
+router.post('/replyCustomerReview/:id',authenticate, authorizeAdmin,productController.replyCustomerReview);
 
 
 
 
 // for users
 
-router.get('/searchProducts',productController.searchProducts);
+router.get('/searchProducts',authenticate, productController.searchProducts);
+router.get('/fetchNewProducts',authenticate,productController.fetchNewProducts);
 
-router.get('/getProductByCategory/:category',productController.getProductByCategory);
-router.get('/getProductBySubCategory/:subcategory',productController.getProductBySubCategory);
-router.get('/getQuickDealProducts',productController.getQuickDealProduct);
 
-//get products for quick deal
+router.get('/getProductByCategory/:category',authenticate, productController.getProductByCategory);
+router.get('/getProductBySubCategory/:subcategory',authenticate, productController.getProductBySubCategory);
+router.get('/getQuickDealProducts',authenticate, productController.getQuickDealProduct);
+
+
 
 
 

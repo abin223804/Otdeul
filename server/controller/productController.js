@@ -577,6 +577,23 @@ const getProductBySubCategory = asyncHandler(async (req, res) => {
   }
 });
 
+
+const fetchNewProducts = asyncHandler(async (req, res) => {
+  try {
+    const products = await Product.find().sort({ _id: -1 }).limit(10);
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json(error.message);
+  }
+});
+
+
+
+
+
+
+
 //product detail view
 
 //product variant selection(size,color)
@@ -602,6 +619,7 @@ export default {
   replyCustomerReview,
   getProductByCategory,
   getProductBySubCategory,
+  fetchNewProducts ,
   enableQuickDeal,
   disableQuickDeal,
   getQuickDealProduct,
