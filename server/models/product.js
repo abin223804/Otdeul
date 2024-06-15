@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
@@ -21,12 +21,48 @@ const variationSchema = new Schema({
   sizes: [sizeSchema],
 });
 
+const discountSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ['fixed', 'percentage'],
+    required: true
+  },
+  value: {
+    type: Number,
+    required: true
+  }
+});
+
+
+
+
+
+
 const productSchema = new Schema(
   {
     productName: { type: String, required: true },
+    brand: {
+      type: "String",
+      required: true,
+    },
     variations: [variationSchema],
+    keywords: {
+      type: ["String"],
+      required: true,
+    },
+    mrp: { type: String, required: true },
+    discount: discountSchema,
+    minimumQuantity: {
+      type: "Number",
+      required: true,
+    },
+    sellingPrice: { type: String, required: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-    subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
+    subcategory: {
+      type: Schema.Types.ObjectId,
+      ref: "Subcategory",
+      required: true,
+    },
     description: { type: String, required: true },
     rating: { type: Number, default: 0 },
     reviews: [reviewSchema],
@@ -34,7 +70,7 @@ const productSchema = new Schema(
     refund: { type: Boolean, default: true },
     published: { type: Boolean, default: false },
     featured: { type: Boolean, default: false },
-    quickDeal: { type: Boolean, default: false }
+    quickDeal: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

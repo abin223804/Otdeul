@@ -16,22 +16,16 @@ const createProduct = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: err.message });
       }
 
-      const basePath = `${req.protocol}://${req.get(
-        "host"
-      )}/public/uploads/product`;
+      const basePath = `${req.protocol}://${req.get('host')}/public/uploads/product`;
       const productVariations = [];
 
-      const variations = req.body.variations; // assuming variations is already parsed correctly
+      const variations = JSON.parse(req.body.variations); // assuming variations is already parsed correctly
 
       for (let varIndex = 0; varIndex < variations.length; varIndex++) {
         const variationData = variations[varIndex];
         const sizes = [];
 
-        for (
-          let sizeIndex = 0;
-          sizeIndex < variationData.sizes.length;
-          sizeIndex++
-        ) {
+        for (let sizeIndex = 0; sizeIndex < variationData.sizes.length; sizeIndex++) {
           const sizeData = variationData.sizes[sizeIndex];
           const fieldName = `variations[${varIndex}][sizes][${sizeIndex}][images]`;
           const images = (req.files || [])
@@ -51,18 +45,43 @@ const createProduct = asyncHandler(async (req, res) => {
         });
       }
 
+      // Parse the discount if provided
+      let discount = null;
+      if (req.body.discount) {
+        discount = JSON.parse(req.body.discount);
+      }
+
+      // Calculate the selling price based on MRP and discount
+      let mrp = parseFloat(req.body.mrp); // Assuming MRP is provided in the request body
+      let sellingPrice = mrp;
+
+      if (discount) {
+        if (discount.type === 'fixed') {
+          sellingPrice = Math.max(0, mrp - discount.value); // Ensure the price does not go below zero
+        } else if (discount.type === 'percentage') {
+          sellingPrice = Math.max(0, mrp - (mrp * (discount.value / 100))); // Ensure the price does not go below zero
+        }
+      }
+
       const newProduct = new Product({
         productName: req.body.productName,
+        brand: req.body.brand,
         variations: productVariations,
+        keywords: req.body.keywords ? req.body.keywords.split(',') : [], // Assuming keywords are sent as a comma-separated string
+        mrp: mrp,
+        discount: discount,
+        minimumQuantity: req.body.minimumQuantity ? parseInt(req.body.minimumQuantity, 10) : 0,
+        sellingPrice: sellingPrice.toFixed(2), // Format the price to 2 decimal places
         category: req.body.category,
         subcategory: req.body.subcategory,
         description: req.body.description,
         rating: req.body.rating || 0,
+        reviews: [],
         numReviews: req.body.numReviews || 0,
         refund: req.body.refund || true,
         published: req.body.published || false,
-        quickDeal: req.body.quickDeal || false,
         featured: req.body.featured || false,
+        quickDeal: req.body.quickDeal || false,
       });
 
       await newProduct.save();
