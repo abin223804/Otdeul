@@ -590,32 +590,38 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
 
 
 
-const filterProducts = asyncHandler(async(req,res)=>{
+const filterProducts = asyncHandler(async (req, res) => {
   try {
     const { priceRange, size, color } = req.query;
     let filters = {};
 
     if (priceRange) {
-      const [minPrice, maxPrice] = priceRange.split('-');
-      filters.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
+      const [minPrice, maxPrice] = priceRange.split('-').map(Number); // Convert to numbers
+      filters.sellingPrice = { $gte: minPrice, $lte: maxPrice };
     }
 
     if (size) {
-      filters['variations.sizes.size'] = size; 
+      filters['variations.sizes.size'] = size;  
     }
 
     if (color) {
       filters['variations.color'] = color; 
     }
 
-    const filteredProducts = await Product.find(filters);
-    res.json(filteredProducts);
+    const filteredProducts = await Product.find(filters); 
+    if (filteredProducts.length === 0) {
+      return res.status(404).json({ message: 'No products found matching the selected criteria' });
+    }
+    else{
+      res.json(filteredProducts);
+
+    }
+
   } catch (error) {
     console.error('Error filtering products:', error);
     res.status(500).json({ error: 'Server Error' });
   }
-
-}) 
+});
 
 
 
