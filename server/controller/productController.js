@@ -596,7 +596,7 @@ const filterProducts = asyncHandler(async (req, res) => {
     let filters = {};
 
     if (priceRange) {
-      const [minPrice, maxPrice] = priceRange.split('-').map(Number); // Convert to numbers
+      const [minPrice, maxPrice] = priceRange.split('-').map(Number); 
       filters.sellingPrice = { $gte: minPrice, $lte: maxPrice };
     }
 
@@ -631,6 +631,29 @@ const filterProducts = asyncHandler(async (req, res) => {
 
 //product detail view
 
+const getProductDetails = asyncHandler(async(req,res)=>{
+
+try {
+
+  const product = await Product.findById(req.params.id);
+
+  console.log(product);
+
+if(!product){
+  return res.status(404).json({ message: "Product not found" });
+}
+
+return res.json(product);
+  
+} catch (error) {
+  res.status(500).json({ error:"server error" });
+}
+
+})
+
+
+
+
 //product variant selection(size,color)
 
 //product add to cart and wishlist
@@ -661,5 +684,6 @@ export default {
   disableRefund,
   enableRefund,
   totalProductsCount,
-  filterProducts
+  filterProducts,
+  getProductDetails,
 };
