@@ -2,6 +2,7 @@ import  express  from "express";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import productController from "../controller/productController.js";
 
+
 const router=express(); 
 
 
@@ -35,6 +36,7 @@ router.post('/replyCustomerReview/:id',productController.replyCustomerReview);
 
 // for users
 
+router.get('/searchProducts',productController.searchProducts);
 
 router.get('/getProductByCategory/:category',productController.getProductByCategory);
 router.get('/getProductBySubCategory/:subcategory',productController.getProductBySubCategory);

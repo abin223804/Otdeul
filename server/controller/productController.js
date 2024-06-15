@@ -146,6 +146,39 @@ const publishProduct = asyncHandler(async (req, res) => {
   }
 });
 
+
+//search product by key word
+
+const searchProducts = asyncHandler(async (req, res) => {
+  try {
+    const { keyword } = req.query;
+
+    const query = {
+      $or: [
+        { productName: { $regex: keyword, $options: 'i' } }, // Case-insensitive search
+        { description: { $regex: keyword, $options: 'i' } },
+        { keywords: { $regex: keyword, $options: 'i' } },
+      ],
+    };
+  
+    const products = await Product.find(query);
+  
+    res.json(products);
+    
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+    
+  }
+ 
+});
+
+
+
+
+
+
+
+
 //Unpublish product
 
 const unpublishProduct = asyncHandler(async (req, res) => {
@@ -560,6 +593,7 @@ export default {
   createProduct,
   addColor ,
   publishProduct,
+  searchProducts ,
   unpublishProduct,
   getAllProducts_admin,
   updateProduct,
