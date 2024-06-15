@@ -19,8 +19,10 @@ const createProduct = asyncHandler(async (req, res) => {
       const basePath = `${req.protocol}://${req.get('host')}/public/uploads/product`;
       const productVariations = [];
 
-      const variations = JSON.parse(req.body.variations); // assuming variations is already parsed correctly
+      // Parse variations array from req.body
+      const variations = JSON.parse(req.body.variations);
 
+      // Iterate over variations and sizes to process images
       for (let varIndex = 0; varIndex < variations.length; varIndex++) {
         const variationData = variations[varIndex];
         const sizes = [];
@@ -45,13 +47,13 @@ const createProduct = asyncHandler(async (req, res) => {
         });
       }
 
-      // Parse the discount if provided
+      // Parse discount if provided
       let discount = null;
       if (req.body.discount) {
         discount = JSON.parse(req.body.discount);
       }
 
-      // Calculate the selling price based on MRP and discount
+      // Calculate selling price based on MRP and discount
       let mrp = parseFloat(req.body.mrp); // Assuming MRP is provided in the request body
       let sellingPrice = mrp;
 
@@ -63,20 +65,21 @@ const createProduct = asyncHandler(async (req, res) => {
         }
       }
 
+      // Create new Product instance
       const newProduct = new Product({
         productName: req.body.productName,
         brand: req.body.brand,
         variations: productVariations,
-        keywords: req.body.keywords ? req.body.keywords.split(',') : [], // Assuming keywords are sent as a comma-separated string
+        keywords: req.body.keywords ? req.body.keywords.split(',') : [], // Split keywords if provided as a comma-separated string
         mrp: mrp,
         discount: discount,
         minimumQuantity: req.body.minimumQuantity ? parseInt(req.body.minimumQuantity, 10) : 0,
-        sellingPrice: sellingPrice.toFixed(2), // Format the price to 2 decimal places
+        sellingPrice: sellingPrice.toFixed(2), // Format selling price to 2 decimal places
         category: req.body.category,
         subcategory: req.body.subcategory,
         description: req.body.description,
         rating: req.body.rating || 0,
-        reviews: [],
+        reviews: [], // Assuming reviews are added separately
         numReviews: req.body.numReviews || 0,
         refund: req.body.refund || true,
         published: req.body.published || false,
@@ -84,11 +87,15 @@ const createProduct = asyncHandler(async (req, res) => {
         quickDeal: req.body.quickDeal || false,
       });
 
+      // Save the new product to the database
       await newProduct.save();
+
+      // Respond with the newly created product
       res.status(201).json(newProduct);
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    // Handle server errors
+    res.status(500).json({ message: "Server error", error });     
   }
 });
 
@@ -104,7 +111,7 @@ const addColor = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: "Color name and color code are required." });
   }
 
-  const newColor = new Color({
+  const newColor = new Color({ 
     colorName,
     colorCode
   });

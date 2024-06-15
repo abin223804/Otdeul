@@ -14,7 +14,7 @@ const sizeSchema = new Schema({
   size: { type: String, required: true },
   stock: { type: Number, required: true },
   images: [{ type: String, required: true }],
-});
+}); 
 
 const variationSchema = new Schema({
   color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
