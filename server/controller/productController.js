@@ -624,7 +624,6 @@ const getProductByColorVariant = asyncHandler(async (req, res) => {
   const { productId, colorId } = req.params;
 
   try {
-    // Find the product with the specified productId and populate the necessary fields
     const product = await Product.findById(productId)
       .populate('category subcategory variations.color');
 
@@ -632,14 +631,12 @@ const getProductByColorVariant = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Find the variation with the specified colorId
     const colorVariant = product.variations.find(variation => variation.color._id.equals(colorId));
 
     if (!colorVariant) {
       return res.status(404).json({ message: 'Color variant not found for this product' });
     }
 
-    // Prepare the response object with updated images, selling price, and available sizes
     const response = {
       productName: product.productName,
       brand: product.brand,
@@ -657,7 +654,7 @@ const getProductByColorVariant = asyncHandler(async (req, res) => {
         size: sizeVariant.size,
         stock: sizeVariant.stock,
         images: sizeVariant.images,
-        sellingPrice: product.sellingPrice, // Default selling price (can be updated as per size selection)
+        sellingPrice: product.sellingPrice, 
       })),
     };
 
@@ -691,7 +688,7 @@ const getProductByColorVariant = asyncHandler(async (req, res) => {
 
 
 
-//product comparison
+
 
 
 
