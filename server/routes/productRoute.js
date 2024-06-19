@@ -47,6 +47,7 @@ router.get('/getProductByCategory/:category',authenticate, productController.get
 router.get('/getProductBySubCategory/:subcategory',authenticate, productController.getProductBySubCategory);
 router.get('/getQuickDealProducts',authenticate, productController.getQuickDealProduct);
 
+router.get('/getProductByColorVariant/:productId/colors/:colorId',authenticate,productController.getProductByColorVariant );
 
 
 

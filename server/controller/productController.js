@@ -16,7 +16,9 @@ const createProduct = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: err.message });
       }
 
-      const basePath = `${req.protocol}://${req.get('host')}/public/uploads/product`;
+      const basePath = `${req.protocol}://${req.get(
+        "host"
+      )}/public/uploads/product`;
       const productVariations = [];
 
       // Parse variations array from req.body
@@ -27,7 +29,11 @@ const createProduct = asyncHandler(async (req, res) => {
         const variationData = variations[varIndex];
         const sizes = [];
 
-        for (let sizeIndex = 0; sizeIndex < variationData.sizes.length; sizeIndex++) {
+        for (
+          let sizeIndex = 0;
+          sizeIndex < variationData.sizes.length;
+          sizeIndex++
+        ) {
           const sizeData = variationData.sizes[sizeIndex];
           const fieldName = `variations[${varIndex}][sizes][${sizeIndex}][images]`;
           const images = (req.files || [])
@@ -58,10 +64,10 @@ const createProduct = asyncHandler(async (req, res) => {
       let sellingPrice = mrp;
 
       if (discount) {
-        if (discount.type === 'fixed') {
+        if (discount.type === "fixed") {
           sellingPrice = Math.max(0, mrp - discount.value); // Ensure the price does not go below zero
-        } else if (discount.type === 'percentage') {
-          sellingPrice = Math.max(0, mrp - (mrp * (discount.value / 100))); // Ensure the price does not go below zero
+        } else if (discount.type === "percentage") {
+          sellingPrice = Math.max(0, mrp - mrp * (discount.value / 100)); // Ensure the price does not go below zero
         }
       }
 
@@ -70,10 +76,12 @@ const createProduct = asyncHandler(async (req, res) => {
         productName: req.body.productName,
         brand: req.body.brand,
         variations: productVariations,
-        keywords: req.body.keywords ? req.body.keywords.split(',') : [], // Split keywords if provided as a comma-separated string
+        keywords: req.body.keywords ? req.body.keywords.split(",") : [], // Split keywords if provided as a comma-separated string
         mrp: mrp,
         discount: discount,
-        minimumQuantity: req.body.minimumQuantity ? parseInt(req.body.minimumQuantity, 10) : 0,
+        minimumQuantity: req.body.minimumQuantity
+          ? parseInt(req.body.minimumQuantity, 10)
+          : 0,
         sellingPrice: sellingPrice.toFixed(2), // Format selling price to 2 decimal places
         category: req.body.category,
         subcategory: req.body.subcategory,
@@ -95,12 +103,9 @@ const createProduct = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     // Handle server errors
-    res.status(500).json({ message: "Server error", error });     
+    res.status(500).json({ message: "Server error", error });
   }
 });
-
-
-
 
 //create color
 
@@ -108,12 +113,14 @@ const addColor = asyncHandler(async (req, res) => {
   const { colorName, colorCode } = req.body;
 
   if (!colorName || !colorCode) {
-    return res.status(400).json({ error: "Color name and color code are required." });
+    return res
+      .status(400)
+      .json({ error: "Color name and color code are required." });
   }
 
-  const newColor = new Color({ 
+  const newColor = new Color({
     colorName,
-    colorCode
+    colorCode,
   });
 
   await newColor.save();
@@ -121,11 +128,9 @@ const addColor = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     message: "Color added successfully.",
-    color: newColor
+    color: newColor,
   });
 });
-
-
 
 //publish product
 
@@ -146,7 +151,6 @@ const publishProduct = asyncHandler(async (req, res) => {
   }
 });
 
-
 //search product by key word
 
 const searchProducts = asyncHandler(async (req, res) => {
@@ -155,29 +159,19 @@ const searchProducts = asyncHandler(async (req, res) => {
 
     const query = {
       $or: [
-        { productName: { $regex: keyword, $options: 'i' } }, // Case-insensitive search
-        { description: { $regex: keyword, $options: 'i' } },
-        { keywords: { $regex: keyword, $options: 'i' } },
+        { productName: { $regex: keyword, $options: "i" } }, // Case-insensitive search
+        { description: { $regex: keyword, $options: "i" } },
+        { keywords: { $regex: keyword, $options: "i" } },
       ],
     };
-  
+
     const products = await Product.find(query);
-  
+
     res.json(products);
-    
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
-    
   }
- 
 });
-
-
-
-
-
-
-
 
 //Unpublish product
 
@@ -241,14 +235,6 @@ const disableQuickDeal = asyncHandler(async (req, res) => {
 });
 
 // refund/replace/return(doubt)
-
-
-
-
-
-
-
-
 
 // get or view products(all)
 
@@ -367,24 +353,17 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 //total products
-
 
 const totalProductsCount = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({});
 
-    res.json(products.length)
-} catch (error) {
-  console.error(error);
-
-}})
-
-
-
-
+    res.json(products.length);
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 //manage customer review (delete/reply)
 
@@ -577,7 +556,6 @@ const getProductBySubCategory = asyncHandler(async (req, res) => {
   }
 });
 
-
 const fetchNewProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find().sort({ _id: -1 }).limit(10);
@@ -588,38 +566,105 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 const filterProducts = asyncHandler(async (req, res) => {
   try {
     const { priceRange, size, color } = req.query;
     let filters = {};
 
     if (priceRange) {
-      const [minPrice, maxPrice] = priceRange.split('-').map(Number); 
+      const [minPrice, maxPrice] = priceRange.split("-").map(Number);
       filters.sellingPrice = { $gte: minPrice, $lte: maxPrice };
     }
 
     if (size) {
-      filters['variations.sizes.size'] = size;  
+      filters["variations.sizes.size"] = size;
     }
 
     if (color) {
-      filters['variations.color'] = color; 
+      filters["variations.color"] = color;
     }
 
-    const filteredProducts = await Product.find(filters); 
+    const filteredProducts = await Product.find(filters);
     if (filteredProducts.length === 0) {
-      return res.status(404).json({ message: 'No products found matching the selected criteria' });
-    }
-    else{
+      return res
+        .status(404)
+        .json({ message: "No products found matching the selected criteria" });
+    } else {
       res.json(filteredProducts);
+    }
+  } catch (error) {
+    console.error("Error filtering products:", error);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
 
+//product detail view
+
+const getProductDetails = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    console.log(product);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
 
+    return res.json(product);
   } catch (error) {
-    console.error('Error filtering products:', error);
-    res.status(500).json({ error: 'Server Error' });
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+//product variant selection(size,color)
+
+//color
+
+const getProductByColorVariant = asyncHandler(async (req, res) => {
+  const { productId, colorId } = req.params;
+
+  try {
+    // Find the product with the specified productId and populate the necessary fields
+    const product = await Product.findById(productId)
+      .populate('category subcategory variations.color');
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Find the variation with the specified colorId
+    const colorVariant = product.variations.find(variation => variation.color._id.equals(colorId));
+
+    if (!colorVariant) {
+      return res.status(404).json({ message: 'Color variant not found for this product' });
+    }
+
+    // Prepare the response object with updated images, selling price, and available sizes
+    const response = {
+      productName: product.productName,
+      brand: product.brand,
+      category: product.category,
+      subcategory: product.subcategory,
+      description: product.description,
+      rating: product.rating,
+      numReviews: product.numReviews,
+      refund: product.refund,
+      published: product.published,
+      featured: product.featured,
+      quickDeal: product.quickDeal,
+      color: colorVariant.color,
+      sizes: colorVariant.sizes.map(sizeVariant => ({
+        size: sizeVariant.size,
+        stock: sizeVariant.stock,
+        images: sizeVariant.images,
+        sellingPrice: product.sellingPrice, // Default selling price (can be updated as per size selection)
+      })),
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Server error', error });
   }
 });
 
@@ -629,46 +674,35 @@ const filterProducts = asyncHandler(async (req, res) => {
 
 
 
-//product detail view
-
-const getProductDetails = asyncHandler(async(req,res)=>{
-
-try {
-
-  const product = await Product.findById(req.params.id);
-
-  console.log(product);
-
-if(!product){
-  return res.status(404).json({ message: "Product not found" });
-}
-
-return res.json(product);
-  
-} catch (error) {
-  res.status(500).json({ error:"server error" });
-}
-
-})
 
 
 
 
-//product variant selection(size,color)
 
 //product add to cart and wishlist
 
+
+
+
+
 // product review and rating(last)
+
+
+
+
 
 //product comparison
 
-//product recommendations
+
+
+
+
 
 export default {
   createProduct,
-  addColor ,
+  addColor,
   publishProduct,
-  searchProducts ,
+  searchProducts,
   unpublishProduct,
   getAllProducts_admin,
   updateProduct,
@@ -677,7 +711,7 @@ export default {
   replyCustomerReview,
   getProductByCategory,
   getProductBySubCategory,
-  fetchNewProducts ,
+  fetchNewProducts,
   enableQuickDeal,
   disableQuickDeal,
   getQuickDealProduct,
@@ -686,4 +720,5 @@ export default {
   totalProductsCount,
   filterProducts,
   getProductDetails,
+  getProductByColorVariant,
 };

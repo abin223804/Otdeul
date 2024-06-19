@@ -11,7 +11,7 @@ const reviewSchema = new Schema({
 });
 
 const sizeSchema = new Schema({
-  size: { type: String, required: true },
+  size: { type: String, required: false },
   stock: { type: Number, required: true },
   images: [{ type: String, required: true }],
 }); 
