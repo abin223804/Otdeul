@@ -1,47 +1,59 @@
-import asyncHandler from "../middlewares/asyncHandler"
-import { stateDetails } from "./tax";
+import asyncHandler from "../middlewares/asyncHandler.js"
+import { stateDetails } from "./tax.js";
 
 
-const caculateItemsSalesTax = asyncHandler(async(items)=>{
+const taxRate = stateDetails.taxRate;
 
-try {
-    const taxRate = stateDetails.stateTaxRate;
+// const calculateItemsSalesTax = (items, taxRate ) => {
+//   return items.map(item => {
+//     const product = {
+//       product: item.productId,
+//       quantity: item.quantity,
+//       purchasePrice: item.purchasePrice || 0,
+//       totalPrice: item.purchasePrice * item.quantity || 0,
+//       totalTax: (item.purchasePrice * item.quantity * taxRate) || 0,
+//       priceWithTax: (item.purchasePrice * item.quantity * (1 + taxRate)) || 0,
+//     };
+//     return product;
+//   });
+// };
+ 
 
-  const products = items.map(item => {
-    item.priceWithTax = 0;
-    item.totalPrice = 0;
-    item.totalTax = 0;
-    item.purchasePrice = item.price;
+const calculateItemsSalesTax = (items, taxRate) => {
+  return items.map(item => {
+    const purchasePrice = parseFloat(item.price);
+    const quantity = parseFloat(item.quantity);
 
-    const price = item.purchasePrice;
-    const quantity = item.quantity;
-    item.totalPrice = parseFloat(Number((price * quantity).toFixed(2)));
-
-    if (item.taxable) {
-      const taxAmount = price * (taxRate / 100) * 100;
-
-      item.totalTax = parseFloat(Number((taxAmount * quantity).toFixed(2)));
-      item.priceWithTax = parseFloat(
-        Number((item.totalPrice + item.totalTax).toFixed(2))
-      );
+    if (isNaN(purchasePrice) || isNaN(quantity) || quantity <= 0) {
+      throw new Error(`Invalid price or quantity for item: ${item.productId}`);
     }
 
-    return item;
+    const totalPrice = purchasePrice * quantity;
+    const totalTax = totalPrice * (taxRate / 100);
+    const priceWithTax = totalPrice + totalTax;
+
+    const product = {
+      product: item.productId,
+      quantity: quantity,
+      purchasePrice: purchasePrice,
+      totalPrice: parseFloat(totalPrice.toFixed(2)),
+      totalTax: parseFloat(totalTax.toFixed(2)),
+      priceWithTax: parseFloat(priceWithTax.toFixed(2)),
+    };
+
+    return product;
   });
-
-  return products;
-    
-} catch (error) {
-    res.status(500).json({ message: "Server error", error });
-    
-}
+};
 
 
 
 
-})
- 
+
+
+
+
+
        
 
 
-export default  caculateItemsSalesTax ;
+export default  calculateItemsSalesTax ;

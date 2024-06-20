@@ -1,38 +1,44 @@
-import Cart from "../models/cart.js";
+import {Cart} from "../models/cart.js";
 import Product from "../models/product.js";
-import caculateItemsSalesTax from "../config/store.js";
+import CalculateItemsSalesTax from "../config/store.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
-const addToCart = asyncHandler(async (req, res) => {
-  try {
-    const user = req.user._id;
-    const items = req.body.products;
-
-    const products = caculateItemsSalesTax(items);
-
-    const cart = new Cart({
-      user,
-      products,
-    });
-
-    const cartDoc = await cart.save();
-
-    decreaseQuantity(products);
-
-    res.status(200).json({
-      success: true,
-      cartId: cartDoc.id,
-    });
-  } catch (error) {
-    res.status(400).json({
-      error: "Your request could not be processed. Please try again.",
-    });
-  }
-});
+const addToCart = async (req, res) => {
+    try {
+      const user = req.user._id;
+      const items = req.body.products;
+  
+      if (!items || items.length === 0) {
+        return res.status(400).json({
+          error: "No products provided."
+        });
+      }
+  
+      const taxRate = 8; // Example tax rate of 8% (should be fetched from a tax configuration)
+  
+      const products = CalculateItemsSalesTax(items, taxRate);
+  
+      // Example: save products to a cart or order
+      const cart = new Cart({ user, products });
+      await cart.save();
+  
+      // Simulate saving to database by logging
+      console.log("Products with tax calculated:", products);
+  
+      res.status(200).json({
+        success: true,
+        products: products
+      });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  };
+  
+  
 
 const deleteCart = asyncHandler(async (req, res) => {
   try {
-    await Cart.deleteOne({ _id: req.Cart.id });
+    await Cart.deleteOne({ _id: req.Cart.cartId });
     res.status(200).json({
       success: true,
     });
@@ -64,7 +70,7 @@ const updateCart = asyncHandler(async (req, res) => {
 
 
 
-const decreaseQuantity = asyncHandler(async(products)=>{
+const decreaseQuantity = async(products)=>{
     let bulkOptions = products.map(item => {
         return {
           updateOne: {
@@ -74,10 +80,10 @@ const decreaseQuantity = asyncHandler(async(products)=>{
         };
       });
     
-      Product.bulkWrite(bulkOptions);
+     await  Product.bulkWrite(bulkOptions);
     
 
-})
+}
 
 const deleteProductFromCart = asyncHandler(async(req,res)=>{
     try {
