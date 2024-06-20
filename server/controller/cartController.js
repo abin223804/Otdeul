@@ -1,6 +1,8 @@
 import {Cart} from "../models/cart.js";
 import Product from "../models/product.js";
 import CalculateItemsSalesTax from "../config/store.js";
+import { stateDetails } from "../config/tax.js";
+
 import asyncHandler from "../middlewares/asyncHandler.js";
 
 const addToCart = async (req, res) => {
@@ -13,12 +15,13 @@ const addToCart = async (req, res) => {
           error: "No products provided."
         });
       }
+
+
+const taxRate = stateDetails.stateTaxRate;
   
-      const taxRate = 8; // Example tax rate of 8% (should be fetched from a tax configuration)
   
       const products = CalculateItemsSalesTax(items, taxRate);
   
-      // Example: save products to a cart or order
       const cart = new Cart({ user, products });
       await cart.save();
   
