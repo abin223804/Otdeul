@@ -18,6 +18,8 @@ const addToCart = async (req, res) => {
 
 
 const taxRate = stateDetails.stateTaxRate;
+
+console.log(taxRate);
   
   
       const products = CalculateItemsSalesTax(items, taxRate);
@@ -41,7 +43,7 @@ const taxRate = stateDetails.stateTaxRate;
 
 const deleteCart = asyncHandler(async (req, res) => {
   try {
-    await Cart.deleteOne({ _id: req.Cart.cartId });
+    await Cart.deleteOne({ _id: req.params.cartId });
     res.status(200).json({
       success: true,
     });
