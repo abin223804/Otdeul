@@ -9,6 +9,8 @@ const router = express();
 router.post('/addToCart',authenticate,cartController.addToCart);
 router.delete('/deleteCart/:cartId',authenticate,cartController.deleteCart);
 router.post('/addProductToCart/:cartId',authenticate,cartController.updateCart);
+router.delete('/deleteProductFromCart/:cartId/:ProductId',authenticate,cartController.deleteProductFromCart);
+
 
 
 
