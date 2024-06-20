@@ -54,6 +54,7 @@ const deleteCart = asyncHandler(async (req, res) => {
   }
 });
 
+
 const updateCart = asyncHandler(async (req, res) => {
   try {
     const product = req.body.product;
@@ -64,7 +65,9 @@ const updateCart = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       success: true,
+      product
     });
+
   } catch (error) {
     res.status(400).json({
       error: "Your request could not be processed. Please try again.",
