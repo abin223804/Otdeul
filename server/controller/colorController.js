@@ -54,10 +54,13 @@ const deleteColor = asyncHandler(async(req,res)=>{
         if(!color){
       return res.status(404).json({ error: "color not found" });
         }
-    res.status(200).json({success: `${color.name} deleted Successfully`,brand});
+
+
+    res.status(200).json({success: `${color.colorName} deleted Successfully`,color});
 
         
     } catch (error) {
+    res.status(400).json({ error: error.message });
         
     }
 
