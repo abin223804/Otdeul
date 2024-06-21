@@ -7,10 +7,6 @@ const BrandSchema = new Schema({
     type: String,
     trim: true,
   },
-  image: {
-    data: Buffer,
-    contentType: String,
-  },
   description: {
     type: String,
     trim: true,
