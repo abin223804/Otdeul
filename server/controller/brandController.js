@@ -35,7 +35,12 @@ const addBrand = asyncHandler(async (req, res) => {
 const listBrand = asyncHandler(async (req, res) => {
   try {
     const allBrand = await Brand.find();
-    res.status(200).json(allBrand);
+
+if(!allBrand){
+    return res.status(404).json({ message: "No brand found" });
+}
+
+      res.status(200).json(allBrand);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

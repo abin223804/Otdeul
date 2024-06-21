@@ -1,6 +1,7 @@
 import  express  from "express";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import productController from "../controller/productController.js";
+import colorController from "../controller/colorController.js";
 
 
 const router=express(); 
@@ -10,7 +11,6 @@ const router=express();
 // for admin
 
 router.post('/addProduct',authenticate, authorizeAdmin, productController.createProduct);
-router.post('/addColor',authenticate, authorizeAdmin, productController.addColor);
 
 router.put('/updateProduct/:id',authenticate, authorizeAdmin,productController.updateProduct);
 router.delete('/deleteProduct/:id',authenticate, authorizeAdmin,productController.deleteProduct);
@@ -30,6 +30,18 @@ router.get('/getProductByCategory_admin/:category',authenticate, authorizeAdmin,
 router.get('/getProductBySubCategory_admin/:subcategory',authenticate, authorizeAdmin,productController.getProductBySubCategory);
 router.delete('/deleteCustomerReview/:id',authenticate, authorizeAdmin,productController.deleteCustomerReview);
 router.post('/replyCustomerReview/:id',authenticate, authorizeAdmin,productController.replyCustomerReview);
+
+
+
+
+//color
+router.post('/addColor',authenticate, authorizeAdmin, colorController.addColor);
+router.get('/fetchColors',authenticate, authorizeAdmin, colorController.getColors);
+router.delete('/deleteColor/:id',authenticate, authorizeAdmin,colorController.deleteColor);
+
+
+
+
 
 
 

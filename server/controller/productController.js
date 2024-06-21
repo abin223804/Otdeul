@@ -1,7 +1,6 @@
 import Product from "../models/product.js";
 import { Category } from "../models/category.js";
 import { Subcategory } from "../models/category.js";
-import Color from "../models/color.js"; // Assuming the file structure
 import upload from "../middlewares/multerMiddleware.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
@@ -107,30 +106,8 @@ const createProduct = asyncHandler(async (req, res) => {
   }
 });
 
-//create color
 
-const addColor = asyncHandler(async (req, res) => {
-  const { colorName, colorCode } = req.body;
 
-  if (!colorName || !colorCode) {
-    return res
-      .status(400)
-      .json({ error: "Color name and color code are required." });
-  }
-
-  const newColor = new Color({
-    colorName,
-    colorCode,
-  });
-
-  await newColor.save();
-
-  res.status(201).json({
-    success: true,
-    message: "Color added successfully.",
-    color: newColor,
-  });
-});
 
 //publish product
 
@@ -697,7 +674,6 @@ const getProductByColorVariant = asyncHandler(async (req, res) => {
 
 export default {
   createProduct,
-  addColor,
   publishProduct,
   searchProducts,
   unpublishProduct,
