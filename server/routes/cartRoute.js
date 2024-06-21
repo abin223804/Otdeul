@@ -1,5 +1,6 @@
 import express from "express";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+
 import cartController from "../controller/cartController.js";
 
 const router = express();

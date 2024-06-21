@@ -34,17 +34,10 @@ const discountSchema = new mongoose.Schema({
 });
 
 
-
-
-
-
 const productSchema = new Schema(
   {
     productName: { type: String, required: true },
-    brand: {
-      type: "String",
-      required: true,
-    },
+    brand:  { type: Schema.Types.ObjectId, ref: "Brand", required: true },
     variations: [variationSchema],
     keywords: {
       type: ["String"],

@@ -19,6 +19,7 @@ import categoryRoute from "./routes/categoryRoute.js";
 import productRoute from "./routes/productRoute.js";
 import addressRoute from "./routes/addressRoute.js";
 import cartRoute from "./routes/cartRoute.js"
+import brandRoute from "./routes/brandRoute.js"
 
 dotenv.config();
 
@@ -48,6 +49,8 @@ app.use("/category", categoryRoute);
 app.use("/product", productRoute);
 app.use("/address", addressRoute);
 app.use("/cart", cartRoute);
+app.use("/brand", brandRoute);
+
 
 
 const PORT = process.env.PORT || 8000;
