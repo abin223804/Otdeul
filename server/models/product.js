@@ -2,19 +2,11 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
-const reviewSchema = new Schema({
-  review: { type: String, required: false },
-  reply: { type: String },
-  image: { type: String, required: false },
-  rating: { type: Number, required: false },
-  user: { type: Schema.Types.ObjectId, ref: "User" },
-});
-
 const sizeSchema = new Schema({
   size: { type: String, required: false },
   stock: { type: Number, required: true },
   images: [{ type: String, required: true }],
-}); 
+});
 
 const variationSchema = new Schema({
   color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
@@ -24,20 +16,19 @@ const variationSchema = new Schema({
 const discountSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ['fixed', 'percentage'],
-    required: true
+    enum: ["fixed", "percentage"],
+    required: true,
   },
   value: {
     type: Number,
-    required: true
-  }
+    required: true,
+  },
 });
-
 
 const productSchema = new Schema(
   {
     productName: { type: String, required: true },
-    brand:  { type: Schema.Types.ObjectId, ref: "Brand", required: true },
+    brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
     variations: [variationSchema],
     keywords: {
       type: ["String"],
@@ -57,9 +48,6 @@ const productSchema = new Schema(
       required: true,
     },
     description: { type: String, required: true },
-    rating: { type: Number, default: 0 },
-    reviews: [reviewSchema],
-    numReviews: { type: Number, default: 0 },
     refund: { type: Boolean, default: true },
     published: { type: Boolean, default: false },
     featured: { type: Boolean, default: false },

@@ -44,8 +44,6 @@ router.delete('/deleteColor/:id',authenticate, authorizeAdmin,colorController.de
 
 
 
-
-
 // for users
 
 router.get('/searchProducts',authenticate, productController.searchProducts);
