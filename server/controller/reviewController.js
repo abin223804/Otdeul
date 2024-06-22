@@ -25,4 +25,36 @@ const addReview = asyncHandler(async (req, res) => {
   }
 });
 
-export default { addReview };
+const fetChAllReviews = asyncHandler(async(req,res)=>{
+
+    const reviews = await Review.find()
+    .sort('-created')
+    .populate({
+      path: 'user',
+      select: 'username email'
+    })
+    .populate({
+      path: 'product',
+      select: 'productName brand sellingPrice'
+    })
+
+
+  const count = await Review.countDocuments();
+
+  res.status(200).json({
+    reviews,
+    count
+  });
+
+})
+
+
+
+
+
+
+
+
+
+
+export default { addReview,fetChAllReviews  };
