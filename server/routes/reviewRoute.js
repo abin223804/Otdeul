@@ -6,8 +6,14 @@ import reviewController from "../controller/reviewController.js";
 
 const router = express();
 
-router.post('/addReview',authenticate,authorizeAdmin,reviewController.addReview);
-router.get('/fetchAllReviews',authenticate,authorizeAdmin,reviewController.fetChAllReviews);
+router.post('/addReview',authenticate,reviewController.addReview);
+router.get('/fetchAllReviews',authenticate,reviewController.fetChAllReviews);
+router.put('/updateReview/:id',authenticate,reviewController.updateReview);
+
+
+
+
+
 
 
 export default router ;

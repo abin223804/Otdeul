@@ -10,7 +10,7 @@ const addReview = asyncHandler(async (req, res) => {
       user: user._id,
     });
 
-    const reviewDoc = await review.save(); 
+    const reviewDoc = await review.save();
 
     res.status(200).json({
       success: true,
@@ -25,28 +25,48 @@ const addReview = asyncHandler(async (req, res) => {
   }
 });
 
-const fetChAllReviews = asyncHandler(async(req,res)=>{
-
-    const reviews = await Review.find()
-    .sort('-created')
+const fetChAllReviews = asyncHandler(async (req, res) => {
+  const reviews = await Review.find()
+    .sort("-created")
     .populate({
-      path: 'user',
-      select: 'username email'
+      path: "user",
+      select: "username email",
     })
     .populate({
-      path: 'product',
-      select: 'productName brand sellingPrice'
-    })
-
+      path: "product",
+      select: "productName brand sellingPrice",
+    });
 
   const count = await Review.countDocuments();
 
   res.status(200).json({
     reviews,
-    count
+    count,
   });
+});
 
-})
+const updateReview = asyncHandler(async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+    const update = req.body;
+    const query = { _id: reviewId };
+
+   const updated = await Review.findOneAndUpdate(query, update, {
+      new: true,
+    });
+
+    res.status(200).json({
+       
+      success: true,
+      message: "Review updated successfully",
+      updated
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: "Your request could not be processed. Please try again.",
+    });
+  }
+});
 
 
 
@@ -54,7 +74,4 @@ const fetChAllReviews = asyncHandler(async(req,res)=>{
 
 
 
-
-
-
-export default { addReview,fetChAllReviews  };
+export default { addReview, fetChAllReviews, updateReview };
