@@ -20,6 +20,7 @@ import productRoute from "./routes/productRoute.js";
 import addressRoute from "./routes/addressRoute.js";
 import cartRoute from "./routes/cartRoute.js"
 import brandRoute from "./routes/brandRoute.js"
+import reviewRoute from "./routes/reviewRoute.js"
 
 dotenv.config();
 
@@ -50,6 +51,10 @@ app.use("/product", productRoute);
 app.use("/address", addressRoute);
 app.use("/cart", cartRoute);
 app.use("/brand", brandRoute);
+app.use("/review", reviewRoute);
+
+
+
 
 
 
