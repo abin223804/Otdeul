@@ -8,6 +8,8 @@ import fast2sms from "fast-two-sms";
 import axios from "axios";
 import dotenv from "dotenv";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+
 dotenv.config();
 
 
@@ -206,18 +208,22 @@ const verifyOtp = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Please fill all the inputs." });
+    return res.status(400).json({
+      success: false,
+      message: "Please fill all the inputs.",
+    });
   }
 
   const user = await User.findOne({ email });
 
-  if (!user || !user.isVerified || user.isBlocked || user.isAdmin ) {
+  if (!user || !user.isVerified || user.isBlocked || user.isAdmin) {
     return res.status(400).json({
       success: false,
       message: "Invalid credentials or user not verified",
@@ -227,87 +233,83 @@ const loginUser = asyncHandler(async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (isMatch) {
-    generateUserToken(res, user._id);
-   return res.status(200).json({
+    const token = generateUserToken(user._id);
+    res.cookie('user-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      sameSite: 'Strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/'
+    });
+    return res.status(200).json({
       _id: user._id,
       username: user.username,
       mobile: user.mobile,
       email: user.email,
       isAdmin: user.isAdmin,
-    })
-    // res.status(200).send({token});
-    
-    ;
+      token: token, // Including token in response in case it's needed
+    });
   } else {
-    res.status(400).json({ success: false, message: "Invalid credentials" });
+    return res.status(400).json({ success: false, message: "Invalid credentials" });
   }
 });
 
-const loginAdmin = asyncHandler(async (req, res) => { 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const loginAdmin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Please fill all the inputs." });
-  }
-
-  const user = await User.findOne({ email });
-
-  if (!user || !user.isVerified || user.isBlocked || ! user.isAdmin) {
     return res.status(400).json({
       success: false,
-      message: "Invalid credentials or user not verified",
+      message: "Please fill all the inputs.",
     });
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const admin = await User.findOne({ email });
+  if (!admin || !admin.isVerified || admin.isBlocked || !admin.isAdmin) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid credentials or admin not verified",
+    });
+  }
+
+  const isMatch = await bcrypt.compare(password, admin.password);
 
   if (isMatch) {
-    generateAdminToken(res, user._id);
+    const token = generateAdminToken(admin._id);
+    res.cookie('admin-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      sameSite: 'Strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/admin'
+    });
     return res.status(200).json({
-   
-      _id: user._id,
-      username: user.username,
-      mobile: user.mobile,
-      email: user.email,
-      isAdmin: user.isAdmin, 
-    })
-    // res.status(200).send({token});
-
+      _id: admin._id,
+      username: admin.username,
+      mobile: admin.mobile,
+      email: admin.email,
+      isAdmin: admin.isAdmin,
+      token: token, // Including token in response in case it's needed
+    });
   } else {
-    res.status(400).json({ success: false, message: "Invalid credentials" });
+    return res.status(400).json({ success: false, message: "Invalid credentials" });
   }
 });
-
-
-const getAdminData = asyncHandler(async(req,res)=>{
-
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    return res.status(401).send('Unauthorized');
-  }
-
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const admin = await User.findById(decoded.adminId);
-    if (!admin) {
-      return res.status(404).send('Admin not found');
-    }
-
-    res.status(200).send(admin);
-
-    
-  } catch (error) {
-    res.status(401).send('Unauthorized');
-
-  }
-
-
-})
-
-
 
 
 
