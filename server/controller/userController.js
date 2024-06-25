@@ -206,7 +206,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
   }
 });
 
-const loginUser = asyncHandler(async (req, res) => {
+const loginUser = asyncHandler(async (token) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -234,6 +234,7 @@ const loginUser = asyncHandler(async (req, res) => {
       mobile: user.mobile,
       email: user.email,
       isAdmin: user.isAdmin,
+      token:token,
     })
     // res.status(200).send({token});
     
@@ -243,7 +244,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-const loginAdmin = asyncHandler(async (req, res) => { 
+const loginAdmin = asyncHandler(async (token) => { 
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -271,7 +272,8 @@ const loginAdmin = asyncHandler(async (req, res) => {
       username: user.username,
       mobile: user.mobile,
       email: user.email,
-      isAdmin: user.isAdmin, 
+      isAdmin: user.isAdmin,
+      token:token 
     })
     // res.status(200).send({token});
 
