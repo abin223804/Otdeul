@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
     },
+    wishlist: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    }]
   },
   {
     timestamps: true, // Adds createdAt and updatedAt timestamps
