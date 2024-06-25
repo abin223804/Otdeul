@@ -69,9 +69,34 @@ const updateReview = asyncHandler(async (req, res) => {
 });
 
 
+const approveReview = asyncHandler(async(req, res)=>{
+    try {
+        const reviewId = req.params.reviewId;
+
+        const query = { _id: reviewId };
+
+        const update = {
+            status: "approved",
+            isActive: true,
+        };
+
+        await Review.findOneAndUpdate(query, update ,{
+            new: true,
+        });
+        
+        res.status(200).json({
+            success:true,
+        })
+
+        
+    } catch (error) {
+        res.status(400).json({
+            error: 'Your request could not be processed. Please try again.'
+          });
+    }
+})
 
 
 
 
-
-export default { addReview, fetChAllReviews, updateReview };
+export default { addReview, fetChAllReviews, updateReview ,approveReview };

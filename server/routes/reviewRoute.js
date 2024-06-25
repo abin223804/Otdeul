@@ -11,6 +11,9 @@ router.get('/fetchAllReviews',authenticate,reviewController.fetChAllReviews);
 router.put('/updateReview/:id',authenticate,reviewController.updateReview);
 
 
+router.put('/approveReview/:reviewId',authenticate,authorizeAdmin,reviewController.approveReview);
+
+
 
 
 

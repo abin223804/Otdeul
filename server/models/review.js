@@ -31,6 +31,10 @@ const reviewSchema = new Schema({
     default: "Waiting Approval",
     enum: ["Waiting Approval", "Approved", "Rejected"],
   },
+  isActive: {
+    type: Boolean,
+    default: false,
+  },
   updated: Date,
   created: {
     type: Date,

@@ -1,26 +1,49 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const { Schema } = mongoose;
-
-const subcategorySchema = new Schema({
-  name: { type: String, required: true },
-  description: String,
-  banner: String,
-  icon: String,  
+const subcategorySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  parentCategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+    required: true,
+  },
+  description: {
+    type: String,
+  },
+  icon: String,
   coverImage: String,
-  parentCategoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
-}, { timestamps: true });
+  banner: String,
+  parent: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+    required: true,
+  },
+});
 
-const categorySchema = new Schema({
-  name: { type: String, required: true },
-  description: String,
-  banner: String, 
-  icon: String,   
-  coverImage: String, 
-  subcategories: [{ type: Schema.Types.ObjectId, ref: 'Subcategory' }],
-}, { timestamps: true });
+const Subcategory = mongoose.model("Subcategory", subcategorySchema);
 
-const Category = mongoose.model('Category', categorySchema);
-const Subcategory = mongoose.model('Subcategory', subcategorySchema);
+const categorySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+  },
+  icon: String,
+  coverImage: String,
+  banner: String,
+  subcategories: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subcategory",
+    },
+  ],
+});
+
+const Category = mongoose.model("Category", categorySchema);
 
 export { Category, Subcategory };

@@ -31,7 +31,7 @@ router.get('/readCategory/:id', categoryController.readCategory);
 
 // for admin
 
-router.post('/addSubcategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addSubcategory);
+// router.post('/addSubcategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addSubcategory);
 router.put('/updateSubcategory/:id',authenticate, authorizeAdmin ,uploadOptions,categoryController.updateSubcategory);
 router.delete('/deleteSubcategory/:id',authenticate, authorizeAdmin ,categoryController.deleteSubcategory);
 

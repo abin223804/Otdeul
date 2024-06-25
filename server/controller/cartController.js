@@ -27,7 +27,6 @@ console.log(taxRate);
       const cart = new Cart({ user, products });
       await cart.save();
   
-      // Simulate saving to database by logging
       console.log("Products with tax calculated:", products);
   
       res.status(200).json({
