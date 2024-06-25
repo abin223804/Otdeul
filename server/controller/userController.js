@@ -234,7 +234,10 @@ const loginUser = asyncHandler(async (req, res) => {
       mobile: user.mobile,
       email: user.email,
       isAdmin: user.isAdmin,
-    });
+    }),
+    res.status(200).send({token});
+    
+    ;
   } else {
     res.status(400).json({ success: false, message: "Invalid credentials" });
   }
@@ -269,7 +272,9 @@ const loginAdmin = asyncHandler(async (req, res) => {
       mobile: user.mobile,
       email: user.email,
       isAdmin: user.isAdmin, 
-    });
+    }),
+    res.status(200).send({token});
+
   } else {
     res.status(400).json({ success: false, message: "Invalid credentials" });
   }
