@@ -12,7 +12,7 @@ const createAddress = asyncHandler(async (req, res) => {
       state,
       country,
       zipCode,
-      isDefault,
+      isDefault, 
     });
 
     const savedAddress = await newAddress.save();

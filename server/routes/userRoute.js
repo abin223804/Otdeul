@@ -59,6 +59,7 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', { failur
 
 // ADMIN ROUTES 👇
 
+router.post("/admin/signIn",userController.loginAdmin)
 
 router.get("/admin",authenticate,authorizeAdmin,userController.getAdminData)
 router.delete("/deleteUser/:id",authenticate,authorizeAdmin ,userController.deleteUserById)

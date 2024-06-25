@@ -1,7 +1,8 @@
 import User from "../models/userModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
-import createToken from "../utils/createToken.js";
+import {generateUserToken} from "../utils/createToken.js";
+import {generateAdminToken}  from "../utils/createToken.js"
 import otpGenerator from "otp-generator";
 import fast2sms from "fast-two-sms";
 import axios from "axios";
@@ -216,7 +217,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (!user || !user.isVerified || user.isBlocked) {
+  if (!user || !user.isVerified || user.isBlocked || user.isAdmin ) {
     return res.status(400).json({
       success: false,
       message: "Invalid credentials or user not verified",
@@ -226,8 +227,8 @@ const loginUser = asyncHandler(async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (isMatch) {
-    createToken(res, user._id);
-    res.json({
+    generateUserToken(res, user._id);
+   return res.status(200).json({
       _id: user._id,
       username: user.username,
       mobile: user.mobile,
@@ -239,6 +240,40 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+const loginAdmin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please fill all the inputs." });
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user || !user.isVerified || user.isBlocked || ! user.isAdmin) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid credentials or user not verified",
+    });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (isMatch) {
+    generateAdminToken(res, user._id);
+    return res.status(200).json({
+   
+      _id: user._id,
+      username: user.username,
+      mobile: user.mobile,
+      email: user.email,
+      isAdmin: user.isAdmin, 
+    });
+  } else {
+    res.status(400).json({ success: false, message: "Invalid credentials" });
+  }
+});
 
 
 const getAdminData = asyncHandler(async(req,res)=>{
@@ -641,6 +676,7 @@ export default {
   sendOtp,
   verifyOtp,
   loginUser,
+  loginAdmin,
   requestForgotPassword ,
   verifyOtpAndResetPassword,
   logoutCurrentUser,
