@@ -12,14 +12,16 @@ const generateUserToken = (res, userId) => {
     secure: process.env.NODE_ENV !== "development",
     sameSite: "strict",
     maxAge: 30 * 24 * 60 * 60 * 1000,
+    token,
+
   });
 
   // return token;
   // res.status(200).send({ token });
-  res.status(200).json({
-    success: true,
-    token,
-  });
+  // res.status(200).json({
+  //   success: true,
+  //   token,
+  // });
 
   
 };
@@ -37,14 +39,15 @@ const generateAdminToken = (res, userId) => {
     secure: process.env.NODE_ENV !== "development",
     sameSite: "strict",
     maxAge: 30 * 24 * 60 * 60 * 1000,
+    token,
   });
 
   // return token;
   // res.status(200).send({ token });
-  res.status(200).json({
-    success: true,
-    token,
-  });
+  // res.status(200).json({
+  //   success: true,
+  //   token,
+  // });
 
   
 };
