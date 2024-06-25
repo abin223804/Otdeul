@@ -240,7 +240,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-const loginAdmin = asyncHandler(async (req, res) => {
+const loginAdmin = asyncHandler(async (req, res) => { 
   const { email, password } = req.body;
 
   if (!email || !password) {

@@ -5,6 +5,7 @@ const generateUserToken = (res, userId) => {
     expiresIn: "30d",
   });
 
+
   // Set JWT as an HTTP-Only Cookie
   res.cookie("jwt", token, {
     httpOnly: true,
@@ -13,9 +14,11 @@ const generateUserToken = (res, userId) => {
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 
-  return token;
-};
+  // return token;
+  res.status(200).send({ token });
 
+  
+};
 
 
 
@@ -32,7 +35,10 @@ const generateAdminToken = (res, userId) => {
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 
-  return token;
+  // return token;
+  res.status(200).send({ token });
+
+  
 };
 
 
