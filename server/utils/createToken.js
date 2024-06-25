@@ -15,7 +15,11 @@ const generateUserToken = (res, userId) => {
   });
 
   // return token;
-  res.status(200).send({ token });
+  // res.status(200).send({ token });
+  res.status(200).json({
+    success: true,
+    token,
+  });
 
   
 };
@@ -36,7 +40,11 @@ const generateAdminToken = (res, userId) => {
   });
 
   // return token;
-  res.status(200).send({ token });
+  // res.status(200).send({ token });
+  res.status(200).json({
+    success: true,
+    token,
+  });
 
   
 };
