@@ -1,36 +1,33 @@
 import User from "../models/userModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
-import {generateUserToken} from "../utils/createToken.js";
-import {generateAdminToken}  from "../utils/createToken.js"
+import { generateUserToken } from "../utils/createToken.js";
+import { generateAdminToken } from "../utils/createToken.js";
 import otpGenerator from "otp-generator";
 import fast2sms from "fast-two-sms";
 import axios from "axios";
 import dotenv from "dotenv";
-import crypto from "crypto";
+
 dotenv.config();
 
-
-
-import FormData from 'form-data';
-import Mailgun from 'mailgun.js';
+import FormData from "form-data";
+import Mailgun from "mailgun.js";
 const mailgun = new Mailgun(FormData);
 
-const apiKey= process.env.MAILGUN_API_KEY  
+const apiKey = process.env.MAILGUN_API_KEY;
 
-const fas2smsApi_key = process.env.FAST2SMS_API_KEY
-const fas2smsEntity_Id = process.env.ENTITY_ID 
+const fas2smsApi_key = process.env.FAST2SMS_API_KEY;
+const fas2smsEntity_Id = process.env.ENTITY_ID;
 
+console.log("fast2smsApi_key", fas2smsApi_key);
+console.log("entityid", fas2smsEntity_Id);
 
-console.log("fast2smsApi_key",fas2smsApi_key); 
-console.log("entityid",fas2smsEntity_Id); 
+console.log("apikey", apiKey);
 
-
-console.log("apikey",apiKey);
-
-const mg = mailgun.client({username: 'api', key: apiKey|| 'key-yourkeyhere'});
-
-
+const mg = mailgun.client({
+  username: "api",
+  key: apiKey || "key-yourkeyhere",
+});
 
 const sendOtp = asyncHandler(async (req, res) => {
   try {
@@ -66,26 +63,22 @@ const sendOtp = asyncHandler(async (req, res) => {
 
     if (!process.env.FAST2SMS_API_KEY || !process.env.SENDER_ID) {
       console.error("Missing required environment variables for Fast2SMS");
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: "Internal server error. Please contact support.",
-        });
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error. Please contact support.",
+      });
     }
 
     if (
-      !process.env.MAILGUN_API_KEY||
+      !process.env.MAILGUN_API_KEY ||
       !process.env.MAILGUN_DOMAIN ||
       !process.env.MAILGUN_EMAIL_SENDER
     ) {
       console.error("Missing required environment variables for Mailgun");
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: "Internal server error. Please contact support.",
-        });
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error. Please contact support.",
+      });
     }
 
     try {
@@ -103,34 +96,37 @@ const sendOtp = asyncHandler(async (req, res) => {
         console.log("Sending request to Fast2SMS with options:", options);
 
         const response = await axios.post(
-          "https://www.fast2sms.com/dev/bulkV2",  
+          "https://www.fast2sms.com/dev/bulkV2",
           options,
           {
             headers: {
               "Content-Type": "application/json",
-              authorization: process.env.FAST2SMS_API_KEY, 
+              authorization: process.env.FAST2SMS_API_KEY,
             },
-            
           }
         );
 
         console.log("Response from Fast2SMS:", response.data);
-    
+
         if (response.data.return) {
           console.log("Response from Fast2SMS:", response.data);
         } else {
           console.error("Error from Fast2SMS:", response.data);
-          return res.status(500).json({ success: false, message: response.data.message || "Error sending OTP via Fast2SMS" });
+          return res
+            .status(500)
+            .json({
+              success: false,
+              message:
+                response.data.message || "Error sending OTP via Fast2SMS",
+            });
         }
-
       } else if (preference === "email") {
         const emailData = {
           from: `Otdeul <${process.env.MAILGUN_EMAIL_SENDER}>`,
           to: email,
           subject: "Your OTP Code",
-          text: `Your OTP for registration is: ${otp}`, 
-        }; 
-
+          text: `Your OTP for registration is: ${otp}`,
+        };
 
         const message = await mg.messages.create(
           process.env.MAILGUN_DOMAIN,
@@ -177,32 +173,29 @@ const sendOtp = asyncHandler(async (req, res) => {
 });
 
 const verifyOtp = asyncHandler(async (req, res) => {
-
   try {
-    const { otp ,email} = req.body;
-  if (!email || !otp) {
-    throw new Error("Mobile number and OTP are required");
-  }
+    const { otp, email } = req.body;
+    if (!email || !otp) {
+      throw new Error("Mobile number and OTP are required");
+    }
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-  if (!user) {
-    throw new Error("Invalid Email");
-  }
+    if (!user) {
+      throw new Error("Invalid Email");
+    }
 
-  if (user.otp === otp) {
-    user.isVerified = true;
-    user.otp = undefined; 
+    if (user.otp === otp) {
+      user.isVerified = true;
+      user.otp = undefined;
 
-    await user.save();
-    return res.json({ success: true, message: "OTP verified successfully" });
-  } else {
-    throw new Error("Invalid OTP");
-  }
-    
+      await user.save();
+      return res.json({ success: true, message: "OTP verified successfully" });
+    } else {
+      throw new Error("Invalid OTP");
+    }
   } catch (error) {
-    res.status(500).json({ message:error.messages});
-    
+    res.status(500).json({ message: error.messages });
   }
 });
 
@@ -210,14 +203,15 @@ const loginUser = asyncHandler(async (token) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Please fill all the inputs." });
+    return res.status(400).json({
+      success: false,
+      message: "Please fill all the inputs.",
+    });
   }
 
   const user = await User.findOne({ email });
 
-  if (!user || !user.isVerified || user.isBlocked || user.isAdmin ) {
+  if (!user || !user.isVerified || user.isBlocked || user.isAdmin) {
     return res.status(400).json({
       success: false,
       message: "Invalid credentials or user not verified",
@@ -227,46 +221,72 @@ const loginUser = asyncHandler(async (token) => {
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (isMatch) {
-    generateUserToken(res, user._id);
-   return res.status(200).json({
+    const token = generateUserToken(user._id);
+    res.cookie("user-token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: "/",
+    });
+    return res.status(200).json({
       _id: user._id,
       username: user.username,
       mobile: user.mobile,
       email: user.email,
       isAdmin: user.isAdmin,
+<<<<<<< HEAD
       token:token,
     })
     // res.status(200).send({token});
     
     ;
+=======
+      token: token,
+    });
+>>>>>>> master
   } else {
-    res.status(400).json({ success: false, message: "Invalid credentials" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid credentials" });
   }
 });
 
+<<<<<<< HEAD
 const loginAdmin = asyncHandler(async (token) => { 
+=======
+const loginAdmin = asyncHandler(async (req, res) => {
+>>>>>>> master
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Please fill all the inputs." });
-  }
-
-  const user = await User.findOne({ email });
-
-  if (!user || !user.isVerified || user.isBlocked || ! user.isAdmin) {
     return res.status(400).json({
       success: false,
-      message: "Invalid credentials or user not verified",
+      message: "Please fill all the inputs.",
     });
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const admin = await User.findOne({ email });
+  if (!admin || !admin.isVerified || admin.isBlocked || !admin.isAdmin) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid credentials or admin not verified",
+    });
+  }
+
+  const isMatch = await bcrypt.compare(password, admin.password);
 
   if (isMatch) {
-    generateAdminToken(res, user._id);
+    const token = generateAdminToken(admin._id);
+    res.cookie("admin-token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: "/admin",
+    });
     return res.status(200).json({
+<<<<<<< HEAD
    
       _id: user._id,
       username: user.username,
@@ -277,43 +297,21 @@ const loginAdmin = asyncHandler(async (token) => {
     })
     // res.status(200).send({token});
 
+=======
+      _id: admin._id,
+      username: admin.username,
+      mobile: admin.mobile,
+      email: admin.email,
+      isAdmin: admin.isAdmin,
+      token: token,
+    });
+>>>>>>> master
   } else {
-    res.status(400).json({ success: false, message: "Invalid credentials" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid credentials" });
   }
 });
-
-
-const getAdminData = asyncHandler(async(req,res)=>{
-
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    return res.status(401).send('Unauthorized');
-  }
-
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const admin = await User.findById(decoded.adminId);
-    if (!admin) {
-      return res.status(404).send('Admin not found');
-    }
-
-    res.status(200).send(admin);
-
-    
-  } catch (error) {
-    res.status(401).send('Unauthorized');
-
-  }
-
-
-})
-
-
-
-
-
-
 
 const requestForgotPassword = asyncHandler(async (req, res) => {
   try {
@@ -326,7 +324,9 @@ const requestForgotPassword = asyncHandler(async (req, res) => {
     const existingUser = await User.findOne({ email });
 
     if (!existingUser) {
-      return res.status(400).json({ error: "No account with that email address exists." });
+      return res
+        .status(400)
+        .json({ error: "No account with that email address exists." });
     }
 
     const otpp = otpGenerator.generate(6, {
@@ -335,10 +335,10 @@ const requestForgotPassword = asyncHandler(async (req, res) => {
       specialChars: false,
     });
 
-    existingUser.resetToken = otpp
-    existingUser.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
+    existingUser.resetToken = otpp;
+    existingUser.resetPasswordExpires = Date.now() + 3600000; 
 
-    console.log(`Generated OTP for ${email}: ${otpp}`);  // Log OTP for debugging
+    console.log(`Generated OTP for ${email}: ${otpp}`); 
 
     await existingUser.save();
 
@@ -346,7 +346,7 @@ const requestForgotPassword = asyncHandler(async (req, res) => {
       from: `Otdeul <${process.env.MAILGUN_EMAIL_SENDER}>`,
       to: email,
       subject: "Your OTP Code",
-      text: `Your OTP for password reset is: ${otpp}`, 
+      text: `Your OTP for password reset is: ${otpp}`,
     };
 
     const message = await mg.messages.create(
@@ -357,30 +357,32 @@ const requestForgotPassword = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Please check your email for the OTP to reset your password."
+      message: "Please check your email for the OTP to reset your password.",
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      error: 'Your request could not be processed. Please try again.'
+      error: "Your request could not be processed. Please try again.",
     });
   }
 });
-
 
 const verifyOtpAndResetPassword = asyncHandler(async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
 
     if (!email || otp === undefined || !newPassword) {
-      return res.status(400).json({ error: "Email, OTP, and new password are required." });
+      return res
+        .status(400)
+        .json({ error: "Email, OTP, and new password are required." });
     }
 
     const existingUser = await User.findOne({ email });
 
     if (!existingUser) {
-      return res.status(400).json({ error: "No account with that email address exists." });
+      return res
+        .status(400)
+        .json({ error: "No account with that email address exists." });
     }
 
     console.log(`Stored OTP: ${existingUser.resetToken}`);
@@ -394,10 +396,9 @@ const verifyOtpAndResetPassword = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: "OTP has expired." });
     }
 
-    // Hash the new password before saving
     const salt = await bcrypt.genSalt(10);
     existingUser.password = await bcrypt.hash(newPassword, salt);
-    
+
     existingUser.resetToken = undefined;
     existingUser.resetPasswordExpires = undefined;
 
@@ -405,35 +406,26 @@ const verifyOtpAndResetPassword = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Password reset successfully."
+      message: "Password reset successfully.",
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      error: 'Your request could not be processed. Please try again.'
+      error: "Your request could not be processed. Please try again.",
     });
   }
 });
 
-
-
-
-
-
-
-
-
 const logoutCurrentUser = asyncHandler(async (req, res) => {
   try {
-    req.session.destroy(err => {
+    req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: "Failed to log out" });
       }
 
-      res.clearCookie('jwt');
+      res.clearCookie("jwt");
 
-      res.clearCookie('connect.sid'); 
+      res.clearCookie("connect.sid");
 
       res.status(200).json({ message: "Logged out successfully" });
     });
@@ -442,9 +434,6 @@ const logoutCurrentUser = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "An error occurred during logout" });
   }
 });
-
-
-
 
 const getCurrentUserProfile = asyncHandler(async (req, res) => {
   try {
@@ -518,7 +507,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     const existingUser = await User.findOne({ email });
 
-    console.log("Existinguser",existingUser);
+    console.log("Existinguser", existingUser);
 
     if (!existingUser) {
       return res
@@ -534,25 +523,22 @@ const resetPassword = asyncHandler(async (req, res) => {
         .json({ error: "Please enter your your correct old password" });
     }
 
-const salt = await bcrypt.genSalt(10)
-const hash = await bcrypt.hash(newPassword,salt);
-existingUser.password=hash;
-existingUser.save();
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(newPassword, salt);
+    existingUser.password = hash;
+    existingUser.save();
 
-res.status(200).json({
-  success:true,
-  message:'Password changed successfully. Please login with your new password'
-})
-
+    res.status(200).json({
+      success: true,
+      message:
+        "Password changed successfully. Please login with your new password",
+    });
   } catch (error) {
-  res.status(400).json({
-    error:'Your request could not be processed.please try again'
-  })
+    res.status(400).json({
+      error: "Your request could not be processed.please try again",
+    });
   }
 });
-
-
-
 
 // for admin
 
@@ -675,7 +661,7 @@ const unBlockUser = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: "User Unblocked  successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error }); 
+    res.status(500).json({ message: "Server error", error });
   }
 });
 
@@ -684,7 +670,7 @@ export default {
   verifyOtp,
   loginUser,
   loginAdmin,
-  requestForgotPassword ,
+  requestForgotPassword,
   verifyOtpAndResetPassword,
   logoutCurrentUser,
   getAllUsers,
@@ -696,6 +682,6 @@ export default {
   BlockUser,
   unBlockUser,
   getUsersCount,
-  resetPassword ,
-  getAdminData
+  resetPassword,
+  getAdminData,
 };
