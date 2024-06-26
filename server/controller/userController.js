@@ -1,14 +1,17 @@
 import User from "../models/userModel.js";
+import Admin from "../models/adminModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
 import { generateUserToken } from "../utils/createToken.js";
-import { generateAdminToken } from "../utils/createToken.js";
+// import { generateAdminToken } from "../utils/createToken.js";
 import otpGenerator from "otp-generator";
 import fast2sms from "fast-two-sms";
 import axios from "axios";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 
-dotenv.config();
+
+dotenv.config(); 
 
 import FormData from "form-data";
 import Mailgun from "mailgun.js";
@@ -16,7 +19,7 @@ const mailgun = new Mailgun(FormData);
 
 const apiKey = process.env.MAILGUN_API_KEY;
 
-const fas2smsApi_key = process.env.FAST2SMS_API_KEY;
+const fas2smsApi_key = process.env.FAST2SMS_API_KEY;  
 const fas2smsEntity_Id = process.env.ENTITY_ID;
 
 console.log("fast2smsApi_key", fas2smsApi_key);
@@ -172,6 +175,8 @@ const sendOtp = asyncHandler(async (req, res) => {
   }
 });
 
+
+
 const verifyOtp = asyncHandler(async (req, res) => {
   try {
     const { otp, email } = req.body;
@@ -267,8 +272,8 @@ const loginAdmin = asyncHandler(async (req, res) => {
       });
     }
 
-    const admin = await User.findOne({ email });
-    if (!admin || !admin.isVerified || admin.isBlocked || !admin.isAdmin) {
+    const admin = await Admin.findOne({ email });
+    if (!admin || !admin.isVerified || !admin.isAdmin) {
       return res.status(400).json({
         success: false,
         message: "Invalid credentials or admin not verified",
@@ -277,15 +282,32 @@ const loginAdmin = asyncHandler(async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, admin.password);
 
+    console.log("ismatch");
+
     if (isMatch) {
-      const token = generateAdminToken(admin._id);
+      const generateAdminToken = () => {
+        const payload = {
+          adminId: admin._id
+        };
+  
+        const options = {
+          expiresIn: '30d', 
+         
+        };
+  
+        const token = jwt.sign(payload, process.env.JWT_SECRET_ADMIN, options);
+        return token;
+      };
+      
+      const token = generateAdminToken();
       res.cookie("admin-token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
         maxAge: 30 * 24 * 60 * 60 * 1000,
-        path: "/admin",
+       
       });
+
       return res.status(200).json({
         _id: admin._id,
         username: admin.username,
@@ -308,6 +330,92 @@ const loginAdmin = asyncHandler(async (req, res) => {
     });
   }
 });
+
+const getAdminData = asyncHandler(async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    console.log('Authorization Header:', authHeader);
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('No token provided or incorrect format');
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized: No token provided or incorrect format',
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    console.log('Token:', token);
+
+    if (!token) {
+      console.log('No token provided');
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized: No token provided',
+      });
+    }
+
+    // Log the JWT secret key just before verifying the token
+    console.log('JWT_SECRET_ADMIN:', process.env.JWT_SECRET_ADMIN);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_ADMIN);
+    console.log('Decoded Token:', decoded);
+
+    const admin = await Admin.findById(decoded.adminId); // Adjust to match your admin model
+    console.log('Admin:', admin);
+
+    if (!admin) {
+      console.log('Admin not found');
+      return res.status(404).json({
+        success: false,
+        message: 'Admin not found',
+      });
+    }
+
+    console.log('Admin found');
+    res.status(200).json({
+      success: true,
+      admin,
+    });
+  } catch (error) {
+    console.error('Error during token verification or admin retrieval:', error);
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized: Invalid token',
+      error: error.message,
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const requestForgotPassword = asyncHandler(async (req, res) => {
