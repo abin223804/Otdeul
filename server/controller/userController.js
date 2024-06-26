@@ -229,7 +229,12 @@ const loginUser = asyncHandler(async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch) {
-      const token = generateUserToken(user._id);
+      const token = jwt.sign(
+        { userId: user._id },
+        process.env.JWT_SECRET_USER,
+        { expiresIn: "30d" }
+      );
+
       res.cookie("user-token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -237,6 +242,7 @@ const loginUser = asyncHandler(async (req, res) => {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         path: "/",
       });
+
       return res.status(200).json({
         _id: user._id,
         username: user.username,
@@ -259,6 +265,7 @@ const loginUser = asyncHandler(async (req, res) => {
     });
   }
 });
+
 
 
 const loginAdmin = asyncHandler(async (req, res) => {

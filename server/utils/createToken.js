@@ -66,16 +66,6 @@ dotenv.config();
     expiresIn: '30d',
   });
 
-  // res.setHeader('Set-Cookie', `jwt=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}`);
-
-  res.cookie("jwt", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV !== "development",
-        sameSite: "strict",
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        token,
-      });
-
   res.status(200).json({
     success: true,
     message: 'Login successful',
