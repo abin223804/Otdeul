@@ -199,119 +199,116 @@ const verifyOtp = asyncHandler(async (req, res) => {
   }
 });
 
-const loginUser = asyncHandler(async (token) => {
-  const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({
+
+const loginUser = asyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all the inputs.",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user || !user.isVerified || user.isBlocked || user.isAdmin) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials or user not verified",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (isMatch) {
+      const token = generateUserToken(user._id);
+      res.cookie("user-token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        path: "/",
+      });
+      return res.status(200).json({
+        _id: user._id,
+        username: user.username,
+        mobile: user.mobile,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        token: token,
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
       success: false,
-      message: "Please fill all the inputs.",
+      message: "Server error",
+      error: error.message,
     });
-  }
-
-  const user = await User.findOne({ email });
-
-  if (!user || !user.isVerified || user.isBlocked || user.isAdmin) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid credentials or user not verified",
-    });
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (isMatch) {
-    const token = generateUserToken(user._id);
-    res.cookie("user-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
-    return res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      mobile: user.mobile,
-      email: user.email,
-      isAdmin: user.isAdmin,
-<<<<<<< HEAD
-      token:token,
-    })
-    // res.status(200).send({token});
-    
-    ;
-=======
-      token: token,
-    });
->>>>>>> master
-  } else {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid credentials" });
   }
 });
 
-<<<<<<< HEAD
-const loginAdmin = asyncHandler(async (token) => { 
-=======
+
 const loginAdmin = asyncHandler(async (req, res) => {
->>>>>>> master
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all the inputs.",
+      });
+    }
+
+    const admin = await User.findOne({ email });
+    if (!admin || !admin.isVerified || admin.isBlocked || !admin.isAdmin) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials or admin not verified",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    if (isMatch) {
+      const token = generateAdminToken(admin._id);
+      res.cookie("admin-token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        path: "/admin",
+      });
+      return res.status(200).json({
+        _id: admin._id,
+        username: admin.username,
+        mobile: admin.mobile,
+        email: admin.email,
+        isAdmin: admin.isAdmin,
+        token: token,
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
       success: false,
-      message: "Please fill all the inputs.",
+      message: "Server error",
+      error: error.message,
     });
-  }
-
-  const admin = await User.findOne({ email });
-  if (!admin || !admin.isVerified || admin.isBlocked || !admin.isAdmin) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid credentials or admin not verified",
-    });
-  }
-
-  const isMatch = await bcrypt.compare(password, admin.password);
-
-  if (isMatch) {
-    const token = generateAdminToken(admin._id);
-    res.cookie("admin-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      path: "/admin",
-    });
-    return res.status(200).json({
-<<<<<<< HEAD
-   
-      _id: user._id,
-      username: user.username,
-      mobile: user.mobile,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      token:token 
-    })
-    // res.status(200).send({token});
-
-=======
-      _id: admin._id,
-      username: admin.username,
-      mobile: admin.mobile,
-      email: admin.email,
-      isAdmin: admin.isAdmin,
-      token: token,
-    });
->>>>>>> master
-  } else {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid credentials" });
   }
 });
+
 
 const requestForgotPassword = asyncHandler(async (req, res) => {
   try {
