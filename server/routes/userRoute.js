@@ -12,6 +12,8 @@ const router=express();
 router.post("/sendOtp",userController.sendOtp)
 router.post("/verifyOtp",userController.verifyOtp)
 router.post("/signIn",userController.loginUser)
+router.get("/getUserData",userController.getUserData)
+
 
 router.post("/requestforgotPassword",userController.requestForgotPassword)
 router.post("/confirmforgotPassword",userController.verifyOtpAndResetPassword);

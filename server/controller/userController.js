@@ -380,6 +380,74 @@ const getAdminData = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+const getUserData = asyncHandler(async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    console.log("Authorization Header:", authHeader);
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("No token provided or incorrect format");
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: No token provided or incorrect format",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    console.log("Token:", token);
+
+    if (!token) {
+      console.log("No token provided");
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: No token provided",
+      });
+    }
+
+    // Log the JWT secret key just before verifying the token
+    console.log("JWT_SECRET_ADMIN:", process.env.JWT_SECRET_USER);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_USER);
+    console.log("Decoded Token:", decoded);
+
+    const user = await User.findById(decoded.userId); // Adjust to match your admin model
+    console.log("User:", user);
+
+    if (!user) {
+      console.log("User not found");
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    console.log("User found");
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error("Error during token verification or admin retrieval:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized: Invalid token",
+      error: error.message,
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
 const requestForgotPassword = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
@@ -751,4 +819,5 @@ export default {
   getUsersCount,
   resetPassword,
   getAdminData,
+  getUserData,
 };
