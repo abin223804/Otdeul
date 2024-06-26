@@ -2,16 +2,13 @@ import User from "../models/userModel.js";
 import Admin from "../models/adminModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
-import { generateUserToken } from "../utils/createToken.js";
-// import { generateAdminToken } from "../utils/createToken.js";
 import otpGenerator from "otp-generator";
 import fast2sms from "fast-two-sms";
 import axios from "axios";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
-
-dotenv.config(); 
+dotenv.config();
 
 import FormData from "form-data";
 import Mailgun from "mailgun.js";
@@ -19,7 +16,7 @@ const mailgun = new Mailgun(FormData);
 
 const apiKey = process.env.MAILGUN_API_KEY;
 
-const fas2smsApi_key = process.env.FAST2SMS_API_KEY;  
+const fas2smsApi_key = process.env.FAST2SMS_API_KEY;
 const fas2smsEntity_Id = process.env.ENTITY_ID;
 
 console.log("fast2smsApi_key", fas2smsApi_key);
@@ -115,13 +112,10 @@ const sendOtp = asyncHandler(async (req, res) => {
           console.log("Response from Fast2SMS:", response.data);
         } else {
           console.error("Error from Fast2SMS:", response.data);
-          return res
-            .status(500)
-            .json({
-              success: false,
-              message:
-                response.data.message || "Error sending OTP via Fast2SMS",
-            });
+          return res.status(500).json({
+            success: false,
+            message: response.data.message || "Error sending OTP via Fast2SMS",
+          });
         }
       } else if (preference === "email") {
         const emailData = {
@@ -175,8 +169,6 @@ const sendOtp = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 const verifyOtp = asyncHandler(async (req, res) => {
   try {
     const { otp, email } = req.body;
@@ -203,8 +195,6 @@ const verifyOtp = asyncHandler(async (req, res) => {
     res.status(500).json({ message: error.messages });
   }
 });
-
-
 
 const loginUser = asyncHandler(async (req, res) => {
   try {
@@ -266,8 +256,6 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 const loginAdmin = asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -294,25 +282,23 @@ const loginAdmin = asyncHandler(async (req, res) => {
     if (isMatch) {
       const generateAdminToken = () => {
         const payload = {
-          adminId: admin._id
+          adminId: admin._id,
         };
-  
+
         const options = {
-          expiresIn: '30d', 
-         
+          expiresIn: "30d",
         };
-  
+
         const token = jwt.sign(payload, process.env.JWT_SECRET_ADMIN, options);
         return token;
       };
-      
+
       const token = generateAdminToken();
       res.cookie("admin-token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
         maxAge: 30 * 24 * 60 * 60 * 1000,
-       
       });
 
       return res.status(200).json({
@@ -341,89 +327,58 @@ const loginAdmin = asyncHandler(async (req, res) => {
 const getAdminData = asyncHandler(async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    console.log('Authorization Header:', authHeader);
+    console.log("Authorization Header:", authHeader);
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('No token provided or incorrect format');
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("No token provided or incorrect format");
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized: No token provided or incorrect format',
+        message: "Unauthorized: No token provided or incorrect format",
       });
     }
 
-    const token = authHeader.split(' ')[1];
-    console.log('Token:', token);
+    const token = authHeader.split(" ")[1];
+    console.log("Token:", token);
 
     if (!token) {
-      console.log('No token provided');
+      console.log("No token provided");
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized: No token provided',
+        message: "Unauthorized: No token provided",
       });
     }
 
     // Log the JWT secret key just before verifying the token
-    console.log('JWT_SECRET_ADMIN:', process.env.JWT_SECRET_ADMIN);
+    console.log("JWT_SECRET_ADMIN:", process.env.JWT_SECRET_ADMIN);
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_ADMIN);
-    console.log('Decoded Token:', decoded);
+    console.log("Decoded Token:", decoded);
 
     const admin = await Admin.findById(decoded.adminId); // Adjust to match your admin model
-    console.log('Admin:', admin);
+    console.log("Admin:", admin);
 
     if (!admin) {
-      console.log('Admin not found');
+      console.log("Admin not found");
       return res.status(404).json({
         success: false,
-        message: 'Admin not found',
+        message: "Admin not found",
       });
     }
 
-    console.log('Admin found');
+    console.log("Admin found");
     res.status(200).json({
       success: true,
       admin,
     });
   } catch (error) {
-    console.error('Error during token verification or admin retrieval:', error);
+    console.error("Error during token verification or admin retrieval:", error);
     return res.status(401).json({
       success: false,
-      message: 'Unauthorized: Invalid token',
+      message: "Unauthorized: Invalid token",
       error: error.message,
     });
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const requestForgotPassword = asyncHandler(async (req, res) => {
   try {
@@ -448,9 +403,9 @@ const requestForgotPassword = asyncHandler(async (req, res) => {
     });
 
     existingUser.resetToken = otpp;
-    existingUser.resetPasswordExpires = Date.now() + 3600000; 
+    existingUser.resetPasswordExpires = Date.now() + 3600000;
 
-    console.log(`Generated OTP for ${email}: ${otpp}`); 
+    console.log(`Generated OTP for ${email}: ${otpp}`);
 
     await existingUser.save();
 
