@@ -12,7 +12,7 @@ const router=express();
 
 
 
-router.post('/addProduct', (req, res) => {
+router.post('/addProduct', authenticateAdmin,authorizeAdmin,(req, res) => {
     upload(req, res, function(err) {
       if(err){
         return res.status(400).json({ msg: err });
@@ -21,34 +21,34 @@ router.post('/addProduct', (req, res) => {
     });
   });
 
-// router.post('/addProduct', authorizeAdmin, productController.createProduct);
-
-router.put('/updateProduct/:id', authorizeAdmin,productController.updateProduct);
-router.delete('/deleteProduct/:id', authorizeAdmin,productController.deleteProduct);
-router.put('/publishProduct/:id', authorizeAdmin,productController.publishProduct);
-router.get('/totalProductsCount', authorizeAdmin,productController.totalProductsCount);
-
-router.put('/unPublishProduct/:id', authorizeAdmin,productController.unpublishProduct);
-router.put('/enableQuickDeal/:id', authorizeAdmin,productController.enableQuickDeal);
-router.put('/disableQuickDeal/:id', authorizeAdmin,productController.disableQuickDeal);
-router.put('/disableRefund/:id', authorizeAdmin,productController.disableRefund);
-router.put('/enableRefund/:id', authorizeAdmin,productController.enableRefund);
 
 
+router.put('/updateProduct/:id' ,authenticateAdmin, authorizeAdmin,productController.updateProduct);
+router.delete('/deleteProduct/:id',authenticateAdmin, authorizeAdmin,productController.deleteProduct);
+router.put('/publishProduct/:id', authenticateAdmin,authorizeAdmin,productController.publishProduct);
+router.get('/totalProductsCount',authenticateAdmin, authorizeAdmin,productController.totalProductsCount);
 
-router.get('/getAllProducts_admin', authorizeAdmin, productController.getAllProducts_admin);
-router.get('/getProductByCategory_admin/:category', authorizeAdmin,productController.getProductByCategory);
-router.get('/getProductBySubCategory_admin/:subcategory', authorizeAdmin,productController.getProductBySubCategory);
-router.delete('/deleteCustomerReview/:id', authorizeAdmin,productController.deleteCustomerReview);
-router.post('/replyCustomerReview/:id', authorizeAdmin,productController.replyCustomerReview);
+router.put('/unPublishProduct/:id',authenticateAdmin, authorizeAdmin,productController.unpublishProduct);
+router.put('/enableQuickDeal/:id',authenticateAdmin, authorizeAdmin,productController.enableQuickDeal);
+router.put('/disableQuickDeal/:id',authenticateAdmin, authorizeAdmin,productController.disableQuickDeal);
+router.put('/disableRefund/:id',authenticateAdmin, authorizeAdmin,productController.disableRefund);
+router.put('/enableRefund/:id',authenticateAdmin, authorizeAdmin,productController.enableRefund);
+
+
+
+router.get('/getAllProducts_admin',authenticateAdmin, authorizeAdmin, productController.getAllProducts_admin);
+router.get('/getProductByCategory_admin/:category',authenticateAdmin, authorizeAdmin,productController.getProductByCategory);
+router.get('/getProductBySubCategory_admin/:subcategory',authenticateAdmin, authorizeAdmin,productController.getProductBySubCategory);
+router.delete('/deleteCustomerReview/:id',authenticateAdmin, authorizeAdmin,productController.deleteCustomerReview);
+router.post('/replyCustomerReview/:id',authenticateAdmin, authorizeAdmin,productController.replyCustomerReview);
 
 
 
 
 //color
 router.post('/addColor',authenticateAdmin, authorizeAdmin, colorController.addColor);
-router.get('/fetchColors', authorizeAdmin, colorController.getColors);
-router.delete('/deleteColor/:id', authorizeAdmin,colorController.deleteColor);
+router.get('/fetchColors',authenticateAdmin, authorizeAdmin, colorController.getColors);
+router.delete('/deleteColor/:id',authenticateAdmin, authorizeAdmin,colorController.deleteColor);
 
 
 
@@ -57,18 +57,18 @@ router.delete('/deleteColor/:id', authorizeAdmin,colorController.deleteColor);
 
 // for users
 
-router.get('/searchProducts', productController.searchProducts);
-router.get('/getProductDetails/:id', productController.getProductDetails);
+router.get('/searchProducts',authenticateUser, productController.searchProducts);
+router.get('/getProductDetails/:id',authenticateUser, productController.getProductDetails);
 
-router.get('/fetchNewProducts',productController.fetchNewProducts);
-router.get('/filterProducts',productController.filterProducts);
+router.get('/fetchNewProducts',authenticateUser,productController.fetchNewProducts);
+router.get('/filterProducts',authenticateUser,productController.filterProducts);
 
 
-router.get('/getProductByCategory/:category', productController.getProductByCategory);
-router.get('/getProductBySubCategory/:subcategory', productController.getProductBySubCategory);
-router.get('/getQuickDealProducts', productController.getQuickDealProduct);
+router.get('/getProductByCategory/:category',authenticateUser, productController.getProductByCategory);
+router.get('/getProductBySubCategory/:subcategory',authenticateUser, productController.getProductBySubCategory);
+router.get('/getQuickDealProducts',authenticateUser, productController.getQuickDealProduct);
 
-router.get('/getProductByColorVariant/:productId/colors/:colorId',productController.getProductByColorVariant );
+router.get('/getProductByColorVariant/:productId/colors/:colorId',authenticateUser,productController.getProductByColorVariant );
 
 
 

@@ -399,7 +399,7 @@ const getUserData = asyncHandler(async (req, res) => {
     console.log("Token:", token);
 
     if (!token) {
-      console.log("No token provided");
+      console.log("No token provided"); 
       return res.status(401).json({
         success: false,
         message: "Unauthorized: No token provided",

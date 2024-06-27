@@ -26,7 +26,7 @@ const addReview = asyncHandler(async (req, res) => {
 });
 
 const fetChAllReviews = asyncHandler(async (req, res) => {
-  const reviews = await Review.find()
+  const reviews = await Review.find({isActive: true})
     .sort("-created")
     .populate({
       path: "user",
@@ -34,7 +34,7 @@ const fetChAllReviews = asyncHandler(async (req, res) => {
     })
     .populate({
       path: "product",
-      select: "productName brand sellingPrice",
+      select: "productName brand sellingPrice", 
     });
 
   const count = await Review.countDocuments();

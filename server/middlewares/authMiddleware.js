@@ -3,10 +3,10 @@ import User from "../models/userModel.js";
 import Admin from "../models/adminModel.js";
 import asyncHandler from "./asyncHandler.js";
 
-// Middleware to authenticate the user
 const authenticateUser = asyncHandler(async (req, res, next) => {
-  let token = req.cookies.jwt;
+  let token = req.cookies['user-token']
 
+  console.log("user token :",token);
   if (!token) {
     return res.status(401).json({
       success: false,
@@ -35,6 +35,7 @@ const authenticateUser = asyncHandler(async (req, res, next) => {
 
 // Middleware to authenticate the admin
 const authenticateAdmin = asyncHandler(async (req, res, next) => {
+
   let token = req.cookies['admin-token'];
 
   console.log("Admin Token:", token);
