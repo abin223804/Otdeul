@@ -10,7 +10,18 @@ const router=express();
 
 // for admin
 
-router.post('/addProduct',authenticate, authorizeAdmin, productController.createProduct);
+
+
+router.post('/addProduct', (req, res) => {
+    upload(req, res, function(err) {
+      if(err){
+        return res.status(400).json({ msg: err });
+      }
+      productController.createProduct(req, res);
+    });
+  });
+
+// router.post('/addProduct',authenticate, authorizeAdmin, productController.createProduct);
 
 router.put('/updateProduct/:id',authenticate, authorizeAdmin,productController.updateProduct);
 router.delete('/deleteProduct/:id',authenticate, authorizeAdmin,productController.deleteProduct);

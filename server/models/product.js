@@ -64,7 +64,7 @@
 import mongoose from 'mongoose';
 
 const variationSchema = new mongoose.Schema({
-    color: { type: String, required: true },
+    color: { type: mongoose.Schema.Types.ObjectId, ref: 'Color', required: true },
     label: { type: String, required: true },
     size: { type: String, required: true },
     price: { type: Number, required: true },
@@ -77,7 +77,7 @@ const variationSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
     productName: { type: String, required: true },
-    brand: { type: String, required: true },
+    brand: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true },
     description: { type: String, required: true },
     productFeatures: { type: String, required: true },
     specialFeatures: { type: String, required: true },

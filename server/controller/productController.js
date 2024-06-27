@@ -1,6 +1,8 @@
 import Product from "../models/product.js";
 import { Category } from "../models/category.js";
 import { Subcategory } from "../models/category.js";
+import Brand from "../models/brand.js";
+import Color from "../models/color.js";
 import upload from "../middlewares/multerMiddleware.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
@@ -8,103 +10,178 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 
 // Create product
 
-const createProduct = asyncHandler(async (req, res) => {
+// const createProduct = asyncHandler(async (req, res) => {
+//   try {
+//     upload(req, res, async (err) => {
+//       if (err) {
+//         return res.status(400).json({ message: err.message });
+//       }
+
+//       const basePath = `${req.protocol}://${req.get(
+//         "host"
+//       )}/public/uploads/product`;
+//       const productVariations = [];
+
+//       // Parse variations array from req.body
+//       const variations = JSON.parse(req.body.variations);
+
+//       // Iterate over variations and sizes to process images
+//       for (let varIndex = 0; varIndex < variations.length; varIndex++) {
+//         const variationData = variations[varIndex];
+//         const sizes = [];
+
+//         for (
+//           let sizeIndex = 0;
+//           sizeIndex < variationData.sizes.length;
+//           sizeIndex++
+//         ) {
+//           const sizeData = variationData.sizes[sizeIndex];
+//           const fieldName = `variations[${varIndex}][sizes][${sizeIndex}][images]`;
+//           const images = (req.files || [])
+//             .filter((file) => file.fieldname === fieldName)
+//             .map((file) => basePath + "/" + file.filename);
+
+//           sizes.push({
+//             size: sizeData.size,
+//             stock: parseInt(sizeData.stock, 10),
+//             images: images,
+//           });
+//         }
+
+//         productVariations.push({
+//           color: variationData.color,
+//           sizes: sizes,
+//         });
+//       }
+
+//       // Parse discount if provided
+//       let discount = null;
+//       if (req.body.discount) {
+//         discount = JSON.parse(req.body.discount);
+//       }
+
+//       // Calculate selling price based on MRP and discount
+//       let mrp = parseFloat(req.body.mrp); // Assuming MRP is provided in the request body
+//       let sellingPrice = mrp;
+
+//       if (discount) {
+//         if (discount.type === "fixed") {
+//           sellingPrice = Math.max(0, mrp - discount.value); // Ensure the price does not go below zero
+//         } else if (discount.type === "percentage") {
+//           sellingPrice = Math.max(0, mrp - mrp * (discount.value / 100)); // Ensure the price does not go below zero
+//         }
+//       }
+
+//       // Create new Product instance
+//       const newProduct = new Product({
+//         productName: req.body.productName,
+//         brand: req.body.brand,
+//         variations: productVariations,
+//         keywords: req.body.keywords ? req.body.keywords.split(",") : [], // Split keywords if provided as a comma-separated string
+//         mrp: mrp,
+//         discount: discount,
+//         minimumQuantity: req.body.minimumQuantity
+//           ? parseInt(req.body.minimumQuantity, 10)
+//           : 0,
+//         sellingPrice: sellingPrice.toFixed(2), // Format selling price to 2 decimal places
+//         category: req.body.category,
+//         subcategory: req.body.subcategory,
+//         description: req.body.description,
+//         rating: req.body.rating || 0,
+//         reviews: [], // Assuming reviews are added separately
+//         numReviews: req.body.numReviews || 0,
+//         refund: req.body.refund || true,
+//         published: req.body.published || false,
+//         featured: req.body.featured || false,
+//         quickDeal: req.body.quickDeal || false,
+//       });
+
+//       // Save the new product to the database
+//       await newProduct.save();
+
+//       // Respond with the newly created product
+//       res.status(201).json(newProduct);
+//     });
+//   } catch (error) {
+//     // Handle server errors
+//     res.status(500).json({ message: "Server error", error });
+//   }
+// });
+
+
+const createProduct = async (req, res) => {
   try {
-    upload(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ message: err.message });
+    const {
+      productName,
+      brand,
+      description,
+      productFeatures,
+      specialFeatures,
+      careGuide,
+      cashOnDelivery,
+      refundable,
+      published,
+      featured,
+      freeShipping,
+      todaysDeal,
+      productPrice,
+      variations
+    } = req.body;
+
+    const brandExists = await Brand.findById(brand);
+    if (!brandExists) {
+      return res.status(400).json({ msg: 'Brand not found' });
+    }
+
+    const thumbnails = req.files['thumbnails'] ? req.files['thumbnails'].map(file => file.path) : [];
+
+    const variationsWithPhotos = variations ? JSON.parse(variations).map(async (variation, index) => {
+      const colorExists = await Color.findById(variation.color);
+      if (!colorExists) {
+        throw new Error(`Color not found for variation ${index}`);
       }
-
-      const basePath = `${req.protocol}://${req.get(
-        "host"
-      )}/public/uploads/product`;
-      const productVariations = [];
-
-      // Parse variations array from req.body
-      const variations = JSON.parse(req.body.variations);
-
-      // Iterate over variations and sizes to process images
-      for (let varIndex = 0; varIndex < variations.length; varIndex++) {
-        const variationData = variations[varIndex];
-        const sizes = [];
-
-        for (
-          let sizeIndex = 0;
-          sizeIndex < variationData.sizes.length;
-          sizeIndex++
-        ) {
-          const sizeData = variationData.sizes[sizeIndex];
-          const fieldName = `variations[${varIndex}][sizes][${sizeIndex}][images]`;
-          const images = (req.files || [])
-            .filter((file) => file.fieldname === fieldName)
-            .map((file) => basePath + "/" + file.filename);
-
-          sizes.push({
-            size: sizeData.size,
-            stock: parseInt(sizeData.stock, 10),
-            images: images,
-          });
-        }
-
-        productVariations.push({
-          color: variationData.color,
-          sizes: sizes,
-        });
+      if (req.files[`variations[${index}].photo`]) {
+        variation.photo = req.files[`variations[${index}].photo`][0].path;
       }
+      return variation;
+    }) : [];
 
-      // Parse discount if provided
-      let discount = null;
-      if (req.body.discount) {
-        discount = JSON.parse(req.body.discount);
-      }
+    const processedVariations = await Promise.all(variationsWithPhotos);
 
-      // Calculate selling price based on MRP and discount
-      let mrp = parseFloat(req.body.mrp); // Assuming MRP is provided in the request body
-      let sellingPrice = mrp;
-
-      if (discount) {
-        if (discount.type === "fixed") {
-          sellingPrice = Math.max(0, mrp - discount.value); // Ensure the price does not go below zero
-        } else if (discount.type === "percentage") {
-          sellingPrice = Math.max(0, mrp - mrp * (discount.value / 100)); // Ensure the price does not go below zero
-        }
-      }
-
-      // Create new Product instance
-      const newProduct = new Product({
-        productName: req.body.productName,
-        brand: req.body.brand,
-        variations: productVariations,
-        keywords: req.body.keywords ? req.body.keywords.split(",") : [], // Split keywords if provided as a comma-separated string
-        mrp: mrp,
-        discount: discount,
-        minimumQuantity: req.body.minimumQuantity
-          ? parseInt(req.body.minimumQuantity, 10)
-          : 0,
-        sellingPrice: sellingPrice.toFixed(2), // Format selling price to 2 decimal places
-        category: req.body.category,
-        subcategory: req.body.subcategory,
-        description: req.body.description,
-        rating: req.body.rating || 0,
-        reviews: [], // Assuming reviews are added separately
-        numReviews: req.body.numReviews || 0,
-        refund: req.body.refund || true,
-        published: req.body.published || false,
-        featured: req.body.featured || false,
-        quickDeal: req.body.quickDeal || false,
-      });
-
-      // Save the new product to the database
-      await newProduct.save();
-
-      // Respond with the newly created product
-      res.status(201).json(newProduct);
+    const newProduct = new Product({
+      productName,
+      brand,
+      description,
+      productFeatures,
+      specialFeatures,
+      careGuide,
+      cashOnDelivery,
+      refundable,
+      published,
+      featured,
+      freeShipping,
+      todaysDeal,
+      productPrice,
+      thumbnails,
+      variations: processedVariations
     });
+
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
   } catch (error) {
-    // Handle server errors
-    res.status(500).json({ message: "Server error", error });
+    console.error(error);
+    res.status(500).json({ msg: 'Server Error', error: error.message });
   }
-});
+};
+
+
+
+
+
+
+
+
+
 
 
 

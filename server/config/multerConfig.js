@@ -2,7 +2,7 @@ import multer from 'multer';
 import path from 'path';
 
 const storage = multer.diskStorage({
-  destination: './uploads/',
+  destination: './uploads/products',
   filename: function(req, file, cb){
     cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
   }
@@ -28,7 +28,7 @@ const upload = multer({
   }
 }).fields([
   { name: 'thumbnails', maxCount: 3 },
-  { name: 'variations[].photo', maxCount: 10 } 
+  { name: 'variations[].photo', maxCount: 20 } 
 ]);
 
 export default upload;
