@@ -1,14 +1,14 @@
 import express from "express";
-import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+// import {, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
 import wishlistController from "../controller/wishlistController.js";
 
 const router = express();
 
-router.post('/addToWishList',authenticate,wishlistController.addWishlist);
-router.delete('/deleteFromWishList',authenticate,wishlistController.removeFromWishlist);
+router.post('/addToWishList',wishlistController.addWishlist);
+router.delete('/deleteFromWishList',wishlistController.removeFromWishlist);
 
-router.get('/fetchWishList',authenticate,wishlistController.getWishlist); 
+router.get('/fetchWishList',wishlistController.getWishlist); 
 
 
 

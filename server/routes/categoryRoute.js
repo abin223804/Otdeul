@@ -1,5 +1,5 @@
 import  express  from "express";
-import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+// import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import { uploadOptions } from "../controller/categoryController.js";
 import categoryController from "../controller/categoryController.js";
 const router=express();
@@ -12,10 +12,10 @@ const router=express();
 // for admin// for admin
 
 
-router.post('/addCategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addCategory);
-router.put('/updateCategory/:id',authenticate, authorizeAdmin , uploadOptions, categoryController.updateCategory);
-router.delete('/deleteCategory/:id',authenticate, authorizeAdmin , categoryController.deleteCategory);
-router.get('/countCategories',authenticate, authorizeAdmin , categoryController.categoryCount);
+router.post('/addCategory' ,uploadOptions,categoryController.addCategory);
+router.put('/updateCategory/:id' , uploadOptions, categoryController.updateCategory);
+router.delete('/deleteCategory/:id' , categoryController.deleteCategory);
+router.get('/countCategories' , categoryController.categoryCount);
 
 
 // for user
@@ -31,9 +31,9 @@ router.get('/readCategory/:id', categoryController.readCategory);
 
 // for admin
 
-// router.post('/addSubcategory',authenticate, authorizeAdmin ,uploadOptions,categoryController.addSubcategory);
-router.put('/updateSubcategory/:id',authenticate, authorizeAdmin ,uploadOptions,categoryController.updateSubcategory);
-router.delete('/deleteSubcategory/:id',authenticate, authorizeAdmin ,categoryController.deleteSubcategory);
+// router.post('/addSubcategory' ,uploadOptions,categoryController.addSubcategory);
+router.put('/updateSubcategory/:id' ,uploadOptions,categoryController.updateSubcategory);
+router.delete('/deleteSubcategory/:id' ,categoryController.deleteSubcategory);
 
 
 

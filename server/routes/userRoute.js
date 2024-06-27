@@ -2,7 +2,7 @@ import  express  from "express";
 import passport from 'passport';
 import userController from '../controller/userController.js'
 
-import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+// import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
 
 const router=express();
@@ -20,16 +20,16 @@ router.post("/confirmforgotPassword",userController.verifyOtpAndResetPassword);
 
 
 router.post("/signOut",userController.logoutCurrentUser)
-router.put("/resetPassword", authenticate,userController.resetPassword)
+router.put("/resetPassword",userController.resetPassword)
 
-router.get("/authUser",authenticate)
-router.get("/authUser",authorizeAdmin)
+router.get("/authUser")
+// router.get("/authUser",authorizeAdmin)
 router.get("/allUsers",userController.getAllUsers) 
 
 
 
-router.get("/getUserProfile",authenticate,userController.getCurrentUserProfile)
-router.put("/updateCurrentUserProfile",authenticate,userController.updateCurrentUserProfile)
+router.get("/getUserProfile",userController.getCurrentUserProfile)
+router.put("/updateCurrentUserProfile",userController.updateCurrentUserProfile)
 
 
 // Google Auth Routes
@@ -64,12 +64,12 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', { failur
 router.post("/admin/signIn",userController.loginAdmin)
 
 router.get("/admin",userController.getAdminData)
-router.delete("/deleteUser/:id",authenticate,authorizeAdmin ,userController.deleteUserById)
-router.get("/getUser/:id",authenticate,authorizeAdmin ,userController.getUserById)
-router.put("/updateUser/:id",authenticate,authorizeAdmin ,userController.updateUserById)
-router.put("/blockUser/:id",authenticate,authorizeAdmin ,userController.BlockUser)
-router.put("/unBlockUser/:id",authenticate,authorizeAdmin ,userController.unBlockUser)
-router.get("/getUsersCount",authenticate,authorizeAdmin ,userController.getUsersCount)
+router.delete("/deleteUser/:id",userController.deleteUserById)
+router.get("/getUser/:id",userController.getUserById)
+router.put("/updateUser/:id",userController.updateUserById)
+router.put("/blockUser/:id",userController.BlockUser)
+router.put("/unBlockUser/:id",userController.unBlockUser)
+router.get("/getUsersCount",userController.getUsersCount)
 
 
 
