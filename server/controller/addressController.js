@@ -15,7 +15,7 @@ const createAddress = asyncHandler(async (req, res) => {
       isDefault, 
     });
 
-    const savedAddress = await newAddress.save();
+    const savedAddress = await newAddress.save();  
 
     res.status(201).json(savedAddress);
   } catch (error) {
