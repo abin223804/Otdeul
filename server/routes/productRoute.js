@@ -3,6 +3,7 @@ import { authenticateUser, authenticateAdmin, authorizeAdmin } from "../middlewa
 import productController from "../controller/productController.js";
 import colorController from "../controller/colorController.js";
 
+import upload from "../middlewares/multerMiddleware.js";
 
 const router=express(); 
 

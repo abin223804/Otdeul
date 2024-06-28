@@ -67,21 +67,24 @@ const variationSchema = new mongoose.Schema({
     color: { type: mongoose.Schema.Types.ObjectId, ref: 'Color', required: true },
     label: { type: String, required: true },
     size: { type: String, required: true },
-    price: { type: Number, required: true },
+    mrp: { type: Number, required: true },
     discount: { type: Number, required: true },
     stock: { type: Number, required: true },
     discountType: { type: String, enum: ['percentage', 'amount'], required: true },
     finalPrice: { type: Number, required: true },
-    photo: { type: String, default: null } 
-});
-
-const productSchema = new mongoose.Schema({
+    photo: { type: String, default: null } // Store the path/URL of the photo as a single string
+  });
+  
+  const productSchema = new mongoose.Schema({
     productName: { type: String, required: true },
     brand: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+    subcategory: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory', required: true },
     description: { type: String, required: true },
     productFeatures: { type: String, required: true },
     specialFeatures: { type: String, required: true },
     careGuide: { type: String, required: true },
+    mrp: { type: Number, required: true }, // Changed to Number
     cashOnDelivery: { type: Boolean, required: true },
     refundable: { type: Boolean, required: true },
     published: { type: Boolean, required: true },
@@ -89,11 +92,11 @@ const productSchema = new mongoose.Schema({
     freeShipping: { type: Boolean, required: true },
     todaysDeal: { type: Boolean, required: true },
     productPrice: { type: Number, required: true },
-    thumbnails: { type: [String], required: true }, 
-    variations: [variationSchema] 
-});
-
-const Product = mongoose.model('Product', productSchema);
+    thumbnail: { type: String }, // Changed to single String field for thumbnail
+    variations: [variationSchema] // Embed the variations schema
+  });
+  
+  const Product = mongoose.model('Product', productSchema);
 
 export default Product;
 
