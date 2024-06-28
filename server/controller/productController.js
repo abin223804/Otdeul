@@ -10,8 +10,6 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 
 // Create product
 
-
-
 const createProduct = async (req, res) => {
   try {
     const {
@@ -31,35 +29,32 @@ const createProduct = async (req, res) => {
       freeShipping,
       todaysDeal,
       productPrice,
-      variations
+      variations,
     } = req.body;
 
     const brandExists = await Brand.findById(brand);
     if (!brandExists) {
-      return res.status(400).json({ msg: 'Brand not found' });
+      return res.status(400).json({ msg: "Brand not found" });
     }
 
-    const thumbnail = req.files['thumbnail'] ? req.files['thumbnail'][0].path : null;
+    const thumbnail = req.files["thumbnail"]
+      ? req.files["thumbnail"][0].path
+      : null;
 
     let variationsArray = [];
     if (variations) {
       try {
         variationsArray = JSON.parse(variations).map((variation, index) => {
-          const photoPath = req.files[`variations[${index}].photo`] ? req.files[`variations[${index}].photo`][0].path : null;
+          const photoPaths = req.files[`variations[${index}].photo`]
+            ? req.files[`variations[${index}].photo`].map((file) => file.path)
+            : [];
           return {
             ...variation,
-            photo: photoPath
+            photo: photoPaths,
           };
         });
       } catch (err) {
-        return res.status(400).json({ msg: 'Invalid variations format' }); 
-      }
-    }
-
-    for (let variation of variationsArray) {
-      const colorExists = await Color.findById(variation.color);
-      if (!colorExists) {
-        return res.status(400).json({ msg: `Color not found for variation with label ${variation.label}` });
+        return res.status(400).json({ msg: "Invalid variations format" });
       }
     }
 
@@ -81,29 +76,16 @@ const createProduct = async (req, res) => {
       todaysDeal,
       productPrice,
       thumbnail,
-      variations: variationsArray
+      variations: variationsArray,
     });
 
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: 'Server Error', error: error.message });
+    res.status(500).json({ msg: "Server Error", error: error.message });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //publish product
 
@@ -112,7 +94,7 @@ const publishProduct = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });  
+      return res.status(404).json({ message: "Product not found" });
     }
 
     product.published = true;
@@ -597,17 +579,22 @@ const getProductByColorVariant = asyncHandler(async (req, res) => {
   const { productId, colorId } = req.params;
 
   try {
-    const product = await Product.findById(productId)
-      .populate('category subcategory variations.color');
+    const product = await Product.findById(productId).populate(
+      "category subcategory variations.color"
+    );
 
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    const colorVariant = product.variations.find(variation => variation.color._id.equals(colorId));
+    const colorVariant = product.variations.find((variation) =>
+      variation.color._id.equals(colorId)
+    );
 
     if (!colorVariant) {
-      return res.status(404).json({ message: 'Color variant not found for this product' });
+      return res
+        .status(404)
+        .json({ message: "Color variant not found for this product" });
     }
 
     const response = {
@@ -623,50 +610,24 @@ const getProductByColorVariant = asyncHandler(async (req, res) => {
       featured: product.featured,
       quickDeal: product.quickDeal,
       color: colorVariant.color,
-      sizes: colorVariant.sizes.map(sizeVariant => ({
+      sizes: colorVariant.sizes.map((sizeVariant) => ({
         size: sizeVariant.size,
         stock: sizeVariant.stock,
         images: sizeVariant.images,
-        sellingPrice: product.sellingPrice, 
+        sellingPrice: product.sellingPrice,
       })),
     };
 
     res.status(200).json(response);
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
 //product add to cart and wishlist
 
-
-
-
-
 // product review and rating(last)
-
-
-
-
-
-
-
-
-
-
-
 
 export default {
   createProduct,

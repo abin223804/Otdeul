@@ -1,11 +1,14 @@
-import multer from 'multer';
-import path from 'path';
+import multer from "multer";
+import path from "path";
 
 const storage = multer.diskStorage({
-  destination: './uploads/',
+  destination: "./uploads/",
   filename: (req, file, cb) => {
-    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-  }
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
 });
 
 const checkFileType = (file, cb) => {
@@ -16,25 +19,24 @@ const checkFileType = (file, cb) => {
   if (mimetype && extname) {
     return cb(null, true);
   } else {
-    cb('Error: Images Only!');
+    cb("Error: Images Only!");
   }
 };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 10000000 }, 
+  limits: { fileSize: 10000000 },
   fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
-  }
+  },
 });
-
 
 const variationFields = Array.from({ length: 10 }, (_, i) => ({
   name: `variations[${i}].photo`,
-  maxCount: 1
+  maxCount: 5,
 }));
 
-variationFields.unshift({ name: 'thumbnail', maxCount: 1 });
+variationFields.unshift({ name: "thumbnail", maxCount: 1 });
 
 const uploadFields = upload.fields(variationFields);
 

@@ -1,64 +1,4 @@
-// import mongoose from "mongoose";
 
-// const { Schema } = mongoose;
-
-// const sizeSchema = new Schema({
-//   size: { type: String, required: false },
-//   stock: { type: Number, required: true },
-//   images: [{ type: String, required: true }],
-// });
-
-// const variationSchema = new Schema({
-//   color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
-//   sizes: [sizeSchema],
-// });
-
-// const discountSchema = new mongoose.Schema({
-//   type: {
-//     type: String,
-//     enum: ["fixed", "percentage"],
-//     required: true,
-//   },
-//   value: {
-//     type: Number,
-//     required: true,
-//   },
-// });
-
-// const productSchema = new Schema(
-//   {
-//     productName: { type: String, required: true },
-//     brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
-//     variations: [variationSchema],
-//     keywords: {
-//       type: ["String"],
-//       required: true,
-//     },
-//     mrp: { type: String, required: true },
-//     discount: discountSchema,
-//     minimumQuantity: {
-//       type: "Number",
-//       required: true,
-//     },
-//     sellingPrice: { type: String, required: true },
-//     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-//     subcategory: {
-//       type: Schema.Types.ObjectId,
-//       ref: "Subcategory",
-//       required: true,
-//     },
-//     description: { type: String, required: true },
-//     refund: { type: Boolean, default: true },
-//     published: { type: Boolean, default: false },
-//     featured: { type: Boolean, default: false },
-//     quickDeal: { type: Boolean, default: false },
-//   },
-//   { timestamps: true }
-// );
-
-// const Product = mongoose.model("Product", productSchema);
-
-// export default Product;
 
 
 import mongoose from 'mongoose';
@@ -72,7 +12,7 @@ const variationSchema = new mongoose.Schema({
     stock: { type: Number, required: true },
     discountType: { type: String, enum: ['percentage', 'amount'], required: true },
     finalPrice: { type: Number, required: true },
-    photo: { type: String, default: null } // Store the path/URL of the photo as a single string
+    photo: { type: [String], default: [] } 
   });
   
   const productSchema = new mongoose.Schema({
@@ -84,7 +24,7 @@ const variationSchema = new mongoose.Schema({
     productFeatures: { type: String, required: true },
     specialFeatures: { type: String, required: true },
     careGuide: { type: String, required: true },
-    mrp: { type: Number, required: true }, // Changed to Number
+    mrp: { type: Number, required: true }, 
     cashOnDelivery: { type: Boolean, required: true },
     refundable: { type: Boolean, required: true },
     published: { type: Boolean, required: true },
@@ -92,8 +32,8 @@ const variationSchema = new mongoose.Schema({
     freeShipping: { type: Boolean, required: true },
     todaysDeal: { type: Boolean, required: true },
     productPrice: { type: Number, required: true },
-    thumbnail: { type: String }, // Changed to single String field for thumbnail
-    variations: [variationSchema] // Embed the variations schema
+    thumbnail: { type: String }, 
+    variations: [variationSchema]
   });
   
   const Product = mongoose.model('Product', productSchema);
