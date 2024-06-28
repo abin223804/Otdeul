@@ -11,7 +11,7 @@ const FILE_TYPE_MAP = {
 // Multer disk storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/category');
+    cb(null, './uploads/');
   },
   filename: function (req, file, cb) {
     const fileName = file.originalname.split(' ').join('-');
