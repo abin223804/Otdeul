@@ -34,16 +34,13 @@ const createProduct = async (req, res) => {
       variations
     } = req.body;
 
-    // Ensure brand exists
     const brandExists = await Brand.findById(brand);
     if (!brandExists) {
       return res.status(400).json({ msg: 'Brand not found' });
     }
 
-    // Extract thumbnail path
     const thumbnail = req.files['thumbnail'] ? req.files['thumbnail'][0].path : null;
 
-    // Process variations and their photo paths
     let variationsArray = [];
     if (variations) {
       try {
@@ -59,7 +56,6 @@ const createProduct = async (req, res) => {
       }
     }
 
-    // Ensure colors exist for each variation
     for (let variation of variationsArray) {
       const colorExists = await Color.findById(variation.color);
       if (!colorExists) {
@@ -67,7 +63,6 @@ const createProduct = async (req, res) => {
       }
     }
 
-    // Create a new product
     const newProduct = new Product({
       productName,
       brand,
@@ -89,7 +84,6 @@ const createProduct = async (req, res) => {
       variations: variationsArray
     });
 
-    // Save the product to the database
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {

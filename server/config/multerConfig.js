@@ -1,7 +1,6 @@
 import multer from 'multer';
 import path from 'path';
 
-// Set storage engine
 const storage = multer.diskStorage({
   destination: './uploads/',
   filename: (req, file, cb) => {
@@ -9,7 +8,6 @@ const storage = multer.diskStorage({
   }
 });
 
-// Check file type
 const checkFileType = (file, cb) => {
   const filetypes = /jpeg|jpg|png|gif/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -22,22 +20,20 @@ const checkFileType = (file, cb) => {
   }
 };
 
-// Initialize upload variable
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5000000 }, // Limit file size to 5MB
+  limits: { fileSize: 10000000 }, 
   fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
   }
 });
 
-// Generate fields dynamically for variations
+
 const variationFields = Array.from({ length: 10 }, (_, i) => ({
   name: `variations[${i}].photo`,
   maxCount: 1
 }));
 
-// Add thumbnail field
 variationFields.unshift({ name: 'thumbnail', maxCount: 1 });
 
 const uploadFields = upload.fields(variationFields);

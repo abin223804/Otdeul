@@ -5,6 +5,8 @@ import colorController from "../controller/colorController.js";
 
 import upload from "../middlewares/multerMiddleware.js";
 
+import uploadFields from "../config/multerConfig.js";
+
 const router=express(); 
 
 
@@ -14,7 +16,7 @@ const router=express();
 
 
 router.post('/addProduct', authenticateAdmin,authorizeAdmin,(req, res) => {
-    upload(req, res, function(err) {
+  uploadFields(req, res, function(err) {
       if(err){
         return res.status(400).json({ msg: err });
       }
