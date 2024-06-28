@@ -1,94 +1,63 @@
 import { Category, Subcategory } from "../models/category.js";
-
 import multer from "multer";
-
-const FILE_TYPE_MAP = {
-  "image/png": "png",
-  "image/jpeg": "jpeg",
-  "image/jpg": "jpg",
-};
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const isValid = FILE_TYPE_MAP[file.mimetype];
-    let uploadError = new Error("invalid image type");
-
-    if (isValid) {
-      uploadError = null;
-    }
-    cb(uploadError, "public/uploads/category");
-  },
-  filename: function (req, file, cb) {
-    const fileName = file.originalname.split(" ").join("-");
-    const extension = FILE_TYPE_MAP[file.mimetype];
-    cb(null, `${fileName}-${Date.now()}.${extension}`);
-  },
-});
-
-export const uploadOptions = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const isValid = FILE_TYPE_MAP[file.mimetype];
-    let uploadError = new Error("invalid image type");
-    if (isValid) {
-      uploadError = null;
-    }
-    cb(uploadError, isValid);
-  },
-}).fields([
-  { name: "icon", maxCount: 1 },
-  { name: "coverImage", maxCount: 1 },
-  { name: "banner", maxCount: 1 },
-]);
+import { uploadOptions } from "../config/categ_multer_config.js";
 
 
 
 
 const addCategory = async (req, res) => {
   try {
-    const files = req.files;
-    if (!files) return res.status(400).send("No image in the request");
+    uploadOptions(req, res, async function (err) {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ msg: err.message });
+      } else if (err) {
+        return res.status(500).json({ msg: 'Unknown error occurred', error: err.message });
+      }
 
-    const basePath = `${req.protocol}://${req.get("host")}/public/uploads/category`;
+      // Proceed with handling form data
+      const files = req.files;
+      if (!files) return res.status(400).send('No image in the request');
 
-    const icon = files.icon ? `${basePath}/${files.icon[0].filename}` : null;
-    const coverImage = files.coverImage ? `${basePath}/${files.coverImage[0].filename}` : null;
-    const banner = files.banner ? `${basePath}/${files.banner[0].filename}` : null;
+      const icon = files.icon ? `public/uploads/category/${files.icon[0].filename}` : null;
+      const coverImage = files.coverImage ? `public/uploads/category/${files.coverImage[0].filename}` : null;
+      const banner = files.banner ? `public/uploads/category/${files.banner[0].filename}` : null;
 
-    let categoryData = {
-      name: req.body.name,
-      parentCategory: req.body.parentCategory,
-      description: req.body.description,
-      icon: icon,
-      coverImage: coverImage,
-      banner: banner,
-    };
+      let categoryData = {
+        name: req.body.name,
+        parentCategory: req.body.parentCategory,
+        description: req.body.description,
+        icon: icon,
+        coverImage: coverImage,
+        banner: banner,
+      };
 
-    if (!req.body.parentCategory || req.body.parentCategory === "No parent") {
-      let category = new Category(categoryData);
-      category = await category.save();
+      // Handle category or subcategory creation based on parentCategory
+      if (!req.body.parentCategory || req.body.parentCategory === 'No parent') {
+        let category = new Category(categoryData);
+        category = await category.save();
 
-      if (!category) return res.status(500).send("The category cannot be created");
+        if (!category) return res.status(500).send('The category cannot be created');
 
-      res.send(category);
-    } else {
-      const parentCategory = await Category.findById(req.body.parentCategory);
-      if (!parentCategory) return res.status(400).send("Invalid parent category");
+        res.send(category);
+      } else {
+        const parentCategory = await Category.findById(req.body.parentCategory);
+        if (!parentCategory) return res.status(400).send('Invalid parent category');
 
-      categoryData.parent = req.body.parentCategory;
-      let subcategory = new Subcategory(categoryData);
-      subcategory = await subcategory.save();
+        categoryData.parent = req.body.parentCategory;
+        let subcategory = new Subcategory(categoryData);
+        subcategory = await subcategory.save();
 
-      if (!subcategory) return res.status(500).send("The subcategory cannot be created");
+        if (!subcategory) return res.status(500).send('The subcategory cannot be created');
 
-      parentCategory.subcategories.push(subcategory);
-      await parentCategory.save();
+        parentCategory.subcategories.push(subcategory);
+        await parentCategory.save();
 
-      res.send(subcategory);
-    }
+        res.send(subcategory);
+      }
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).send("An error occurred");
+    res.status(500).send('An error occurred');
   }
 };
 

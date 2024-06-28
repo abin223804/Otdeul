@@ -2,9 +2,6 @@ import  express  from "express";
 import { authenticateUser, authenticateAdmin, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import productController from "../controller/productController.js";
 import colorController from "../controller/colorController.js";
-
-import upload from "../middlewares/multerMiddleware.js";
-
 import uploadFields from "../config/multerConfig.js";
 
 const router=express(); 
