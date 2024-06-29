@@ -30,7 +30,6 @@ const createProduct = async (req, res) => {
       featured,
       freeShipping,
       todaysDeal,
-      productPrice,
       variations,
     } = req.body;
 
@@ -78,7 +77,6 @@ const createProduct = async (req, res) => {
       featured,
       freeShipping,
       todaysDeal,
-      productPrice,
       thumbnail,
       variations: variationsArray,
     });
@@ -234,7 +232,6 @@ const updateProduct = asyncHandler(async (req, res) => {
       featured,
       freeShipping,
       todaysDeal,
-      productPrice,
       variations,
     } = req.body;
 
@@ -289,7 +286,6 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.featured = featured !== undefined ? featured : product.featured;
     product.freeShipping = freeShipping !== undefined ? freeShipping : product.freeShipping;
     product.todaysDeal = todaysDeal !== undefined ? todaysDeal : product.todaysDeal;
-    product.productPrice = productPrice || product.productPrice;
     product.thumbnail = thumbnail;
     product.variations = variationsArray.length > 0 ? variationsArray : product.variations;
 

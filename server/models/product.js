@@ -33,7 +33,6 @@ const variationSchema = new mongoose.Schema({
     featured: { type: Boolean, required: true },
     freeShipping: { type: Boolean, required: true },
     todaysDeal: { type: Boolean, required: true },
-    productPrice: { type: Number, required: true },
     thumbnail: { type: String }, 
     variations: [variationSchema]
   });
