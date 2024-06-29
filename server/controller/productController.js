@@ -6,7 +6,7 @@ import Color from "../models/color.js";
 import upload from "../middlewares/multerMiddleware.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
-// for admin 👇
+// for admin 👇only
 
 // Create product
 
