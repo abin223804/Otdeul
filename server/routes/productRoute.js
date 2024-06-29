@@ -22,8 +22,19 @@ router.post('/addProduct', authenticateAdmin,authorizeAdmin,(req, res) => {
   });
 
 
+  router.put('/updateProduct/:id', authenticateAdmin, authorizeAdmin, (req, res) => {
+    uploadFields(req, res, function(err) {
+      if (err) {
+        return res.status(400).json({ msg: err });
+      }
+      productController.updateProduct(req, res);
+    });
+  });
 
-router.put('/updateProduct/:id' ,authenticateAdmin, authorizeAdmin,productController.updateProduct);
+
+
+
+
 router.delete('/deleteProduct/:id',authenticateAdmin, authorizeAdmin,productController.deleteProduct);
 router.put('/publishProduct/:id', authenticateAdmin,authorizeAdmin,productController.publishProduct);
 router.get('/totalProductsCount',authenticateAdmin, authorizeAdmin,productController.totalProductsCount);

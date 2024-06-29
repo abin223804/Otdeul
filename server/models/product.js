@@ -25,6 +25,8 @@ const variationSchema = new mongoose.Schema({
     specialFeatures: { type: String, required: true },
     careGuide: { type: String, required: true },
     mrp: { type: Number, required: true }, 
+    minimumQuantity: { type: Number,default:1, required: true},
+    keyWords: { type:[String] , required: true},
     cashOnDelivery: { type: Boolean, required: true },
     refundable: { type: Boolean, required: true },
     published: { type: Boolean, required: true },

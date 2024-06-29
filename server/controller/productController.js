@@ -6,7 +6,7 @@ import Color from "../models/color.js";
 import upload from "../middlewares/multerMiddleware.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
-// for admin 👇only
+// for admin 👇
 
 // Create product
 
@@ -22,6 +22,8 @@ const createProduct = async (req, res) => {
       specialFeatures,
       careGuide,
       mrp,
+      minimumQuantity,
+      keyWords,
       cashOnDelivery,
       refundable,
       published,
@@ -68,6 +70,8 @@ const createProduct = async (req, res) => {
       specialFeatures,
       careGuide,
       mrp,
+      minimumQuantity,
+      keyWords,
       cashOnDelivery,
       refundable,
       published,
@@ -212,6 +216,27 @@ const getAllProducts_admin = asyncHandler(async (req, res) => {
 const updateProduct = asyncHandler(async (req, res) => {
   try {
     const productId = req.params.id;
+    const {
+      productName,
+      brand,
+      category,
+      subcategory,
+      description,
+      productFeatures,
+      specialFeatures,
+      careGuide,
+      mrp,
+      minimumQuantity,
+      keyWords,
+      cashOnDelivery,
+      refundable,
+      published,
+      featured,
+      freeShipping,
+      todaysDeal,
+      productPrice,
+      variations,
+    } = req.body;
 
     const product = await Product.findById(productId);
 
@@ -219,78 +244,62 @@ const updateProduct = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    upload(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ message: err.message });
+    if (brand) {
+      const brandExists = await Brand.findById(brand);
+      if (!brandExists) {
+        return res.status(400).json({ msg: "Brand not found" });
       }
+    }
 
-      const basePath = `${req.protocol}://${req.get(
-        "host"
-      )}/public/uploads/product`;
-      const productVariations = [];
+    const thumbnail = req.files["thumbnail"]
+      ? req.files["thumbnail"][0].path
+      : product.thumbnail;
 
-      const variations = req.body.variations;
-
-      for (let varIndex = 0; varIndex < variations.length; varIndex++) {
-        const variationData = variations[varIndex];
-        const sizes = [];
-
-        for (
-          let sizeIndex = 0;
-          sizeIndex < variationData.sizes.length;
-          sizeIndex++
-        ) {
-          const sizeData = variationData.sizes[sizeIndex];
-          const fieldName = `variations[${varIndex}][sizes][${sizeIndex}][images]`;
-          const images = (req.files || [])
-            .filter((file) => file.fieldname === fieldName)
-            .map((file) => basePath + "/" + file.filename);
-
-          sizes.push({
-            size: sizeData.size,
-            stock: parseInt(sizeData.stock, 10),
-            images: images,
-          });
-        }
-
-        productVariations.push({
-          color: variationData.color,
-          sizes: sizes,
+    let variationsArray = [];
+    if (variations) {
+      try {
+        variationsArray = JSON.parse(variations).map((variation, index) => {
+          const photoPaths = req.files[`variations[${index}].photo`]
+            ? req.files[`variations[${index}].photo`].map((file) => file.path)
+            : variation.photo || [];
+          return {
+            ...variation,
+            photo: photoPaths,
+          };
         });
+      } catch (err) {
+        return res.status(400).json({ msg: "Invalid variations format" });
       }
+    }
 
-      product.productName = req.body.productName || product.productName;
-      product.variations =
-        productVariations.length > 0 ? productVariations : product.variations;
-      product.category = req.body.category || product.category;
-      product.subcategory = req.body.subcategory || product.subcategory;
-      product.description = req.body.description || product.description;
-      product.rating =
-        req.body.rating !== undefined ? req.body.rating : product.rating;
-      product.numReviews =
-        req.body.numReviews !== undefined
-          ? req.body.numReviews
-          : product.numReviews;
-      product.refund =
-        req.body.refund !== undefined ? req.body.refund : product.refund;
-      product.published =
-        req.body.published !== undefined
-          ? req.body.published
-          : product.published;
-      product.quickDeal =
-        req.body.quickDeal !== undefined
-          ? req.body.quickDeal
-          : product.quickDeal;
-      product.featured =
-        req.body.featured !== undefined ? req.body.featured : product.featured;
+    product.productName = productName || product.productName;
+    product.brand = brand || product.brand;
+    product.category = category || product.category;
+    product.subcategory = subcategory || product.subcategory;
+    product.description = description || product.description;
+    product.productFeatures = productFeatures || product.productFeatures;
+    product.specialFeatures = specialFeatures || product.specialFeatures;
+    product.careGuide = careGuide || product.careGuide;
+    product.mrp = mrp || product.mrp;
+    product.minimumQuantity = minimumQuantity || product.minimumQuantity;
+    product.keyWords = keyWords || product.keyWords;
+    product.cashOnDelivery = cashOnDelivery !== undefined ? cashOnDelivery : product.cashOnDelivery;
+    product.refundable = refundable !== undefined ? refundable : product.refundable;
+    product.published = published !== undefined ? published : product.published;
+    product.featured = featured !== undefined ? featured : product.featured;
+    product.freeShipping = freeShipping !== undefined ? freeShipping : product.freeShipping;
+    product.todaysDeal = todaysDeal !== undefined ? todaysDeal : product.todaysDeal;
+    product.productPrice = productPrice || product.productPrice;
+    product.thumbnail = thumbnail;
+    product.variations = variationsArray.length > 0 ? variationsArray : product.variations;
 
-      await product.save();
-      res.status(200).json(product);
-    });
+    const updatedProduct = await product.save();
+    res.status(200).json(updatedProduct);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
 
 //Delete product
 
